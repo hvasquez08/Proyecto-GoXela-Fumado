@@ -170,12 +170,110 @@ namespace delibery
                 set { nummerolicencia = value; }
 
                 // ay que esperar que herbert haga la clase vehiculo para poder hacer la clase repartidor
+                // YA ESTA LA CLASE VEHICULO, YA PUEDO HACER LA CLASE REPARTIDOR XDDD
 
             }
 
         }
+        class Vehiculo
+        {
+            private String codigo;
+
+            public String MyCodigo
+            {
+                get { return codigo; }
+                set { codigo = value; }
+            }
+            private String placa;
+
+            public String MyPlaca
+            {
+                get { return placa; }
+                set { placa = value; }
+            }
+            private String marca;
+
+            public String MyMarca
+            {
+                get { return marca; }
+                set { marca = value; }
+            }
+            private string modelo;
+
+            public string MyModelo
+            {
+                get { return modelo; }
+                set { modelo = value; }
+            }
+            private double cargamaxima;
+
+            public double Mycargamaxima
+            {
+                get { return cargamaxima; }
+                set { cargamaxima = value; }
+            }
+            private double costoOperativo;
+
+            public double MycostoOperativo
+            {
+                get { return costoOperativo; }
+                set { costoOperativo = value; }
+            }
+            private string tipoLicencia;
+
+            public string MytipoLicencia
+            {
+                get { return tipoLicencia; }
+                set { tipoLicencia = value; }
+            }
+
+            public Vehiculo(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia)
+            {
+                codigo = MyCodigo;
+                placa = MyPlaca;
+                marca = MyMarca;
+                modelo = MyModelo;
+                cargaMaxima = Mycargamaxima;
+                costoOperativo = MycostoOperativo;
+                tipoLicencia = MytipoLicencia;
+            }
+
+        }
+        
+        class bicicleta : Vehiculo
+        {
+            private int myVar;
+
+            public int MyProperty
+            {
+                get { return myVar; }
+                set { myVar = value; }
+            }
+
+            public bicicleta(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia) : base(codigo, placa, marca, modelo, cargaMaxima, costoOperativo, tipoLicencia)
+            {
+
+            }
+        }
+        class Motocicleta : Vehiculo
+        {
+            public Motocicleta(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia) : base(codigo, placa, marca, modelo, cargaMaxima, costoOperativo, tipoLicencia)
+
+            {
+
+            }
+        }
+        class automovil : Vehiculo
+        {
+            public automovil(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia) : base(codigo, placa, marca, modelo, cargaMaxima, costoOperativo, tipoLicencia)
+
+            {
+
+            }
+        }
             static void Main(string[] args)
             {
+            Console.WriteLine("Menu :D");
             }
         }
     }
