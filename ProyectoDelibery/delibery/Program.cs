@@ -484,9 +484,135 @@ namespace delibery
                 return (MycostoOperativo * distanciaKm) + 12.00;
             }
         }
+        public class Paquete
+        {
+            private string codigo;
+            public string Codigo
+            {
+                get { return codigo; }
+                set { codigo = value; }
+            }
+
+            private string descripcion;
+            public string Descripcion
+            {
+                get { return descripcion; }
+                set { descripcion = value; }
+            }
+
+            private double peso;
+            public double Peso
+            {
+                get { return peso; }
+                set { peso = value; }
+            }
+
+            private double valordeclarado;
+            public double Valordeclarado
+            {
+                get { return valordeclarado; }
+                set { valordeclarado = value; }
+            }
+
+            private string direccionorigen;
+            public string Direccionorigen
+            {
+                get { return direccionorigen; }
+                set { direccionorigen = value; }
+            }
+
+            private string direcciondestino;
+            public string Direcciondestino
+            {
+                get { return direcciondestino; }
+                set { direcciondestino = value; }
+            }
+
+            private string estado = "REGISTRADO";
+            public string Estado
+            {
+                get { return estado; }
+                set { estado = value; }
+            }
+
+            public Paquete(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino)
+            {
+                Codigo = codigo;
+                Descripcion = descripcion;
+                Peso = peso;
+                Valordeclarado = valordeclarado;
+                Direccionorigen = direccionorigen;
+                Direcciondestino = direcciondestino;
+            }
+
+            public void MostrarInformacionPaquete()
+            {
+                Console.WriteLine("Código: " + Codigo);
+                Console.WriteLine("Descripción: " + Descripcion);
+                Console.WriteLine("Peso: " + Peso + " kg");
+                Console.WriteLine("Valor declarado: Q" + Valordeclarado);
+                Console.WriteLine("Dirección de origen: " + Direccionorigen);
+                Console.WriteLine("Dirección de destino: " + Direcciondestino);
+                Console.WriteLine("Estado: " + Estado);
+            }
+
+            public bool ValidarDatos()
+            {
+                if (string.IsNullOrWhiteSpace(Codigo))
+                {
+                    Console.WriteLine("Error: El código del paquete no puede estar vacío.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Descripcion))
+                {
+                    Console.WriteLine("Error: La descripción no puede estar vacía.");
+                    return false;
+                }
+
+                if (Peso <= 0)
+                {
+                    Console.WriteLine("Error: El peso debe ser mayor a 0.");
+                    return false;
+                }
+
+                if (Valordeclarado < 0)
+                {
+                    Console.WriteLine("Error: El valor declarado no puede ser negativo.");
+                    return false;
+                }
+
+                if (Valordeclarado > 50000)
+                {
+                    Console.WriteLine("Error: No se transportan paquetes de más de Q50000.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Direccionorigen))
+                {
+                    Console.WriteLine("Error: La dirección de origen no puede estar vacía.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Direcciondestino))
+                {
+                    Console.WriteLine("Error: La dirección de destino no puede estar vacía.");
+                    return false;
+                }
+
+                if (Estado != "REGISTRADO" && Estado != "ASIGNADO" && Estado != "EN TRANSITO" && Estado != "ENTREGADO")
+                {
+                    Console.WriteLine("Error: El estado debe ser REGISTRADO, ASIGNADO, EN TRANSITO o ENTREGADO.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos del paquete validados correctamente.");
+                return true;
+            }
+
+        }
         static void Main(string[] args)
         {
-            Console.WriteLine("Prueba de que funciona mi rama :D");
             Console.WriteLine("Menu :D");
         }
     }
