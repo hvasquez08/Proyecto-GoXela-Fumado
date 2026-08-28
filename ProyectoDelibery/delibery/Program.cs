@@ -170,7 +170,7 @@ namespace delibery
                 set { nummerolicencia = value; }
 
                 // ay que esperar que herbert haga la clase vehiculo para poder hacer la clase repartidor
-                // YA ESTA LA CLASE VEHICULO, YA Podes HACER LA CLASE REPARTIDOR XDDD
+                // YA ESTA LA CLASE VEHICULO, YA PUEDO HACER LA CLASE REPARTIDOR XDDD
 
             }
 
@@ -323,6 +323,73 @@ namespace delibery
                 cargaMaxima = Mycargamaxima;
                 costoOperativo = MycostoOperativo;
                 tipoLicencia = MytipoLicencia;
+            }
+
+            private string estado = "DISPONIBLE";
+            public string Estado
+            {
+                get { return estado; }
+                set { estado = value; }
+            }
+
+            public void MostrarInformacionVehiculo()
+            {
+                Console.WriteLine("Código: " + MyCodigo);
+                Console.WriteLine("Placa: " + MyPlaca);
+                Console.WriteLine("Marca: " + MyMarca);
+                Console.WriteLine("Modelo: " + MyModelo);
+                Console.WriteLine("Carga máxima: " + Mycargamaxima + " kg");
+                Console.WriteLine("Costo operativo: Q" + MycostoOperativo);
+                Console.WriteLine("Tipo de licencia: " + MytipoLicencia);
+                Console.WriteLine("Estado: " + Estado);
+            }
+
+            public bool ValidarDatos()
+            {
+                if (string.IsNullOrWhiteSpace(MyCodigo))
+                {
+                    Console.WriteLine("Error: El código del vehículo no puede estar vacío.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(MyPlaca))
+                {
+                    Console.WriteLine("Error: La placa no puede estar vacía.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(MyMarca))
+                {
+                    Console.WriteLine("Error: La marca no puede estar vacía.");
+                    return false;
+                }
+
+                if (Mycargamaxima <= 0)
+                {
+                    Console.WriteLine("Error: La carga máxima debe ser mayor a 0.");
+                    return false;
+                }
+
+                if (MycostoOperativo < 0)
+                {
+                    Console.WriteLine("Error: El costo operativo no puede ser negativo.");
+                    return false;
+                }
+
+                if (MytipoLicencia != "NINGUNA" && MytipoLicencia != "M" && MytipoLicencia != "A o B")
+                {
+                    Console.WriteLine("Error: El tipo de licencia debe ser NINGUNA, M o A o B.");
+                    return false;
+                }
+
+                if (Estado != "DISPONIBLE" && Estado != "ASIGNADO" && Estado != "EN MANTENIMIENTO")
+                {
+                    Console.WriteLine("Error: El estado debe ser DISPONIBLE, ASIGNADO o EN MANTENIMIENTO.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos del vehículo validados correctamente.");
+                return true;
             }
 
         }
