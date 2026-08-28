@@ -408,6 +408,21 @@ namespace delibery
             {
 
             }
+
+            public string Tipo()
+            {
+                return "BICICLETA";
+            }
+
+            public string LicenciaRequerida()
+            {
+                return "NINGUNA";
+            }
+
+            public double CalcularCostoOperativo(double distanciaKm)
+            {
+                return MycostoOperativo * distanciaKm;
+            }
         }
         class Motocicleta : Vehiculo
         {
@@ -415,6 +430,28 @@ namespace delibery
 
             {
 
+            }
+
+            private bool tienecajatermica;
+            public bool Tienecajatermica
+            {
+                get { return tienecajatermica; }
+                set { tienecajatermica = value; }
+            }
+
+            public string Tipo()
+            {
+                return "MOTOCICLETA";
+            }
+
+            public string LicenciaRequerida()
+            {
+                return "M";
+            }
+
+            public double CalcularCostoOperativo(double distanciaKm)
+            {
+                return (MycostoOperativo * distanciaKm) + 5.00;
             }
         }
         class automovil : Vehiculo
@@ -424,10 +461,32 @@ namespace delibery
             {
 
             }
+
+            private int numerodepuertas;
+            public int Numerodepuertas
+            {
+                get { return numerodepuertas; }
+                set { numerodepuertas = value; }
+            }
+
+            public string Tipo()
+            {
+                return "AUTOMOVIL";
+            }
+
+            public string LicenciaRequerida()
+            {
+                return "A o B";
+            }
+
+            public double CalcularCostoOperativo(double distanciaKm)
+            {
+                return (MycostoOperativo * distanciaKm) + 12.00;
+            }
         }
         static void Main(string[] args)
         {
-            console.WriteLine("Prueba de que funciona mi rama :D");
+            Console.WriteLine("Prueba de que funciona mi rama :D");
             Console.WriteLine("Menu :D");
         }
     }
