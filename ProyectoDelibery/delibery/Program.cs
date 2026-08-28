@@ -170,8 +170,95 @@ namespace delibery
                 set { nummerolicencia = value; }
 
                 // ay que esperar que herbert haga la clase vehiculo para poder hacer la clase repartidor
-                // YA ESTA LA CLASE VEHICULO, YA PUEDO HACER LA CLASE REPARTIDOR XDDD
+                // YA ESTA LA CLASE VEHICULO, YA Podes HACER LA CLASE REPARTIDOR XDDD
 
+            }
+
+            private string tipolicencia;
+            public string Tipolicencia
+            {
+                get { return tipolicencia; }
+                set { tipolicencia = value; }
+            }
+
+            private string estado;
+            public string Estado
+            {
+                get { return estado; }
+                set { estado = value; }
+            }
+
+            private int entregasrealizadas;
+            public int Entregasrealizadas
+            {
+                get { return entregasrealizadas; }
+                set { entregasrealizadas = value; }
+            }
+
+            private double calificacion;
+            public double Calificacion
+            {
+                get { return calificacion; }
+                set { calificacion = value; }
+            }
+
+            public Repartidor(string codigo, string nombrecompleto, string telefono, string nummerolicencia, string tipolicencia) : base(codigo, nombrecompleto, telefono)
+            {
+                Nummerolicencia = nummerolicencia;
+                Tipolicencia = tipolicencia;
+                Estado = "DISPONIBLE";
+                Entregasrealizadas = 0;
+                Calificacion = 0;
+            }
+
+            public void MostrarInformacionRepartidor()
+            {
+                MostrarInformacion();
+                Console.WriteLine("Número de licencia: " + Nummerolicencia);
+                Console.WriteLine("Tipo de licencia: " + Tipolicencia);
+                Console.WriteLine("Estado: " + Estado);
+                Console.WriteLine("Entregas realizadas: " + Entregasrealizadas);
+                Console.WriteLine("Calificación: " + Calificacion);
+            }
+
+            public void incrementarEntrega()
+            {
+                Entregasrealizadas++;
+            }
+
+            public new bool ValidarDatos()
+            {
+                if (!base.ValidarDatos())
+                {
+                    return false;
+                }
+
+                if (Tipolicencia != "NINGUNA" && Tipolicencia != "M" && Tipolicencia != "A" && Tipolicencia != "B")
+                {
+                    Console.WriteLine("Error: El tipo de licencia debe ser NINGUNA, M, A o B.");
+                    return false;
+                }
+
+                if (Tipolicencia != "NINGUNA" && string.IsNullOrWhiteSpace(Nummerolicencia))
+                {
+                    Console.WriteLine("Error: Si el repartidor tiene licencia debe llevar número de licencia.");
+                    return false;
+                }
+
+                if (Estado != "DISPONIBLE" && Estado != "ASIGNADO" && Estado != "FUERA DE SERVICIO")
+                {
+                    Console.WriteLine("Error: El estado debe ser DISPONIBLE, ASIGNADO o FUERA DE SERVICIO.");
+                    return false;
+                }
+
+                if (Calificacion < 0 || Calificacion > 5)
+                {
+                    Console.WriteLine("Error: La calificación debe estar entre 0 y 5.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos del repartidor validados correctamente.");
+                return true;
             }
 
         }
@@ -239,7 +326,7 @@ namespace delibery
             }
 
         }
-        
+
         class bicicleta : Vehiculo
         {
             private int myVar;
@@ -271,9 +358,9 @@ namespace delibery
 
             }
         }
-            static void Main(string[] args)
-            {
+        static void Main(string[] args)
+        {
             Console.WriteLine("Menu :D");
-            }
         }
     }
+}
