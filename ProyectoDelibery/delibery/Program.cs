@@ -611,6 +611,280 @@ namespace delibery
             }
 
         }
+        public class Documento : Paquete
+        {
+            public Documento(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino) : base(codigo, descripcion, peso, valordeclarado, direccionorigen, direcciondestino)
+            {
+
+            }
+
+            public string Tipo()
+            {
+                return "DOCUMENTO";
+            }
+
+            public double CalcularTarifaBase(double distanciaKm)
+            {
+                return 8.00 + (2.50 * distanciaKm);
+            }
+
+            public string CondicionesTransporte()
+            {
+                return "Debe viajar en sobre cerrado y protegido de la lluvia.";
+            }
+
+            public new bool ValidarDatos()
+            {
+                if (!base.ValidarDatos())
+                {
+                    return false;
+                }
+
+                if (Peso > 2)
+                {
+                    Console.WriteLine("Error: Un documento no puede pesar más de 2 kg. Si pesa más regístrelo como paquete estándar.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos del documento validados correctamente.");
+                return true;
+            }
+
+        }
+        public class PaqueteEstandar : Paquete
+        {
+            public PaqueteEstandar(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino) : base(codigo, descripcion, peso, valordeclarado, direccionorigen, direcciondestino)
+            {
+
+            }
+
+            public string Tipo()
+            {
+                return "ESTANDAR";
+            }
+
+            public double CalcularTarifaBase(double distanciaKm)
+            {
+                return 10.00 + (3.50 * distanciaKm) + (2.00 * Peso);
+            }
+
+            public string CondicionesTransporte()
+            {
+                return "Sin condiciones especiales.";
+            }
+
+        }
+        public class PaqueteFragil : Paquete
+        {
+            public PaqueteFragil(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino) : base(codigo, descripcion, peso, valordeclarado, direccionorigen, direcciondestino)
+            {
+
+            }
+
+            public string Tipo()
+            {
+                return "FRAGIL";
+            }
+
+            public bool EsFragil()
+            {
+                return true;
+            }
+
+            public double CalcularTarifaBase(double distanciaKm)
+            {
+                double normal = 10.00 + (3.50 * distanciaKm) + (2.00 * Peso);
+                return (normal * 1.35) + 15.00;
+            }
+
+            public string CondicionesTransporte()
+            {
+                return "Embalaje con burbuja, no apilar y manejar con cuidado.";
+            }
+
+        }
+        public class ProductoRefrigerado : Paquete
+        {
+            private double temperaturamaxima;
+            public double Temperaturamaxima
+            {
+                get { return temperaturamaxima; }
+                set { temperaturamaxima = value; }
+            }
+
+            public ProductoRefrigerado(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino, double temperaturamaxima) : base(codigo, descripcion, peso, valordeclarado, direccionorigen, direcciondestino)
+            {
+                Temperaturamaxima = temperaturamaxima;
+            }
+
+            public string Tipo()
+            {
+                return "REFRIGERADO";
+            }
+
+            public bool NecesitaRefrigeracion()
+            {
+                return true;
+            }
+
+            public double CalcularTarifaBase(double distanciaKm)
+            {
+                double normal = 10.00 + (3.50 * distanciaKm) + (2.50 * Peso);
+                return normal + 25.00 + (1.50 * distanciaKm);
+            }
+
+            public string CondicionesTransporte()
+            {
+                return "Cadena de frío a " + Temperaturamaxima + " grados o menos, entrega inmediata.";
+            }
+
+            public new bool ValidarDatos()
+            {
+                if (!base.ValidarDatos())
+                {
+                    return false;
+                }
+
+                if (Temperaturamaxima > 15)
+                {
+                    Console.WriteLine("Error: Un producto refrigerado debe conservarse a 15 grados o menos.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos del producto refrigerado validados correctamente.");
+                return true;
+            }
+
+        }
+        public class Incidencia
+        {
+            private string codigo;
+            public string Codigo
+            {
+                get { return codigo; }
+                set { codigo = value; }
+            }
+
+            private string codigoentrega;
+            public string Codigoentrega
+            {
+                get { return codigoentrega; }
+                set { codigoentrega = value; }
+            }
+
+            private string tipo;
+            public string Tipo
+            {
+                get { return tipo; }
+                set { tipo = value; }
+            }
+
+            private string descripcion;
+            public string Descripcion
+            {
+                get { return descripcion; }
+                set { descripcion = value; }
+            }
+
+            private DateTime fecha;
+            public DateTime Fecha
+            {
+                get { return fecha; }
+                set { fecha = value; }
+            }
+
+            private string estado = "ABIERTA";
+            public string Estado
+            {
+                get { return estado; }
+                set { estado = value; }
+            }
+
+            private string acciontomada;
+            public string Acciontomada
+            {
+                get { return acciontomada; }
+                set { acciontomada = value; }
+            }
+
+            public Incidencia(string codigo, string codigoentrega, string tipo, string descripcion) : this(codigo, codigoentrega, tipo, descripcion, "Pendiente de revisión")
+            {
+
+            }
+
+            public Incidencia(string codigo, string codigoentrega, string tipo, string descripcion, string acciontomada)
+            {
+                Codigo = codigo;
+                Codigoentrega = codigoentrega;
+                Tipo = tipo;
+                Descripcion = descripcion;
+                Acciontomada = acciontomada;
+                Fecha = DateTime.Now;
+            }
+
+            public bool EsTipoValido(string tipo)
+            {
+                if (tipo == "CLIENTE AUSENTE" || tipo == "DIRECCION INCORRECTA" || tipo == "PAQUETE DANADO" || tipo == "VEHICULO AVERIADO" || tipo == "RETRASO" || tipo == "CLIMA" || tipo == "RECHAZO")
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            public void CerrarIncidencia(string acciontomada)
+            {
+                Acciontomada = acciontomada;
+                Estado = "CERRADA";
+            }
+
+            public void MostrarInformacionIncidencia()
+            {
+                Console.WriteLine("Código: " + Codigo);
+                Console.WriteLine("Entrega: " + Codigoentrega);
+                Console.WriteLine("Tipo: " + Tipo);
+                Console.WriteLine("Fecha: " + Fecha);
+                Console.WriteLine("Descripción: " + Descripcion);
+                Console.WriteLine("Estado: " + Estado);
+                Console.WriteLine("Acción tomada: " + Acciontomada);
+            }
+
+            public bool ValidarDatos()
+            {
+                if (string.IsNullOrWhiteSpace(Codigo))
+                {
+                    Console.WriteLine("Error: El código de la incidencia no puede estar vacío.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Codigoentrega))
+                {
+                    Console.WriteLine("Error: La incidencia debe pertenecer a una entrega.");
+                    return false;
+                }
+
+                if (!EsTipoValido(Tipo))
+                {
+                    Console.WriteLine("Error: El tipo debe ser CLIENTE AUSENTE, DIRECCION INCORRECTA, PAQUETE DANADO, VEHICULO AVERIADO, RETRASO, CLIMA o RECHAZO.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(Descripcion))
+                {
+                    Console.WriteLine("Error: La descripción de la incidencia no puede estar vacía.");
+                    return false;
+                }
+
+                if (Estado != "ABIERTA" && Estado != "CERRADA")
+                {
+                    Console.WriteLine("Error: El estado de la incidencia debe ser ABIERTA o CERRADA.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos de la incidencia validados correctamente.");
+                return true;
+            }
+
+        }
         static void Main(string[] args)
         {
             Console.WriteLine("Menu :D");
