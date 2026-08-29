@@ -261,6 +261,34 @@ namespace delibery
                 return true;
             }
 
+            public bool TieneLicencia(string licenciapedida)
+            {
+                if (licenciapedida == "NINGUNA")
+                {
+                    return true;
+                }
+
+                if (licenciapedida == "M")
+                {
+                    if (Tipolicencia == "M" || Tipolicencia == "A" || Tipolicencia == "B")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (licenciapedida == "A o B")
+                {
+                    if (Tipolicencia == "A" || Tipolicencia == "B")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                return false;
+            }
+
         }
         class Vehiculo
         {
@@ -423,6 +451,40 @@ namespace delibery
             {
                 return MycostoOperativo * distanciaKm;
             }
+
+            public bool PuedeTransportar(Paquete paquete)
+            {
+                if (paquete.Peso > Mycargamaxima)
+                {
+                    Console.WriteLine("La bicicleta soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                if (paquete.Valordeclarado > 1000)
+                {
+                    Console.WriteLine("Por seguridad la bicicleta no lleva paquetes de más de Q1000.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            public bool PuedeTransportar(PaqueteFragil paquete)
+            {
+                if (paquete.Peso > 5)
+                {
+                    Console.WriteLine("Un paquete frágil de más de 5 kg no viaja seguro en bicicleta.");
+                    return false;
+                }
+
+                return PuedeTransportar((Paquete)paquete);
+            }
+
+            public bool PuedeTransportar(ProductoRefrigerado paquete)
+            {
+                Console.WriteLine("La bicicleta no tiene equipo de refrigeración.");
+                return false;
+            }
         }
         class Motocicleta : Vehiculo
         {
@@ -453,6 +515,34 @@ namespace delibery
             {
                 return (MycostoOperativo * distanciaKm) + 5.00;
             }
+
+            public bool PuedeTransportar(Paquete paquete)
+            {
+                if (paquete.Peso > Mycargamaxima)
+                {
+                    Console.WriteLine("La motocicleta soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                if (paquete.Valordeclarado > 15000)
+                {
+                    Console.WriteLine("Por seguridad la motocicleta no lleva paquetes de más de Q15000.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            public bool PuedeTransportar(ProductoRefrigerado paquete)
+            {
+                if (Tienecajatermica == false)
+                {
+                    Console.WriteLine("Esta motocicleta no tiene caja térmica.");
+                    return false;
+                }
+
+                return PuedeTransportar((Paquete)paquete);
+            }
         }
         class automovil : Vehiculo
         {
@@ -482,6 +572,17 @@ namespace delibery
             public double CalcularCostoOperativo(double distanciaKm)
             {
                 return (MycostoOperativo * distanciaKm) + 12.00;
+            }
+
+            public bool PuedeTransportar(Paquete paquete)
+            {
+                if (paquete.Peso > Mycargamaxima)
+                {
+                    Console.WriteLine("El automóvil soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                return true;
             }
         }
         public class Paquete
