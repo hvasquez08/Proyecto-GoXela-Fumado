@@ -986,6 +986,444 @@ namespace delibery
             }
 
         }
+        class Entrega
+        {
+            private string codigo;
+            public string Codigo
+            {
+                get { return codigo; }
+                set { codigo = value; }
+            }
+
+            private Cliente cliente;
+            public Cliente Cliente
+            {
+                get { return cliente; }
+                set { cliente = value; }
+            }
+
+            private Paquete paquete;
+            public Paquete Paquete
+            {
+                get { return paquete; }
+                set { paquete = value; }
+            }
+
+            private Repartidor repartidor;
+            public Repartidor Repartidor
+            {
+                get { return repartidor; }
+                set { repartidor = value; }
+            }
+
+            private Vehiculo vehiculo;
+            public Vehiculo Vehiculo
+            {
+                get { return vehiculo; }
+                set { vehiculo = value; }
+            }
+
+            private List<Incidencia> incidencias;
+            public List<Incidencia> Incidencias
+            {
+                get { return incidencias; }
+                set { incidencias = value; }
+            }
+
+            private DateTime fechasolicitud;
+            public DateTime Fechasolicitud
+            {
+                get { return fechasolicitud; }
+                set { fechasolicitud = value; }
+            }
+
+            private double distanciaestimada;
+            public double Distanciaestimada
+            {
+                get { return distanciaestimada; }
+                set { distanciaestimada = value; }
+            }
+
+            private string tiposervicio;
+            public string Tiposervicio
+            {
+                get { return tiposervicio; }
+                set { tiposervicio = value; }
+            }
+
+            private string estado = "SOLICITADA";
+            public string Estado
+            {
+                get { return estado; }
+                set { estado = value; }
+            }
+
+            private string estadoanterior = "";
+            public string Estadoanterior
+            {
+                get { return estadoanterior; }
+                set { estadoanterior = value; }
+            }
+
+            private double tarifabase;
+            public double Tarifabase
+            {
+                get { return tarifabase; }
+                set { tarifabase = value; }
+            }
+
+            private double recargos;
+            public double Recargos
+            {
+                get { return recargos; }
+                set { recargos = value; }
+            }
+
+            private double descuentos;
+            public double Descuentos
+            {
+                get { return descuentos; }
+                set { descuentos = value; }
+            }
+
+            private double total;
+            public double Total
+            {
+                get { return total; }
+                set { total = value; }
+            }
+
+            private double calificacion;
+            public double Calificacion
+            {
+                get { return calificacion; }
+                set { calificacion = value; }
+            }
+
+            public Entrega(string codigo, Cliente cliente, Paquete paquete, double distanciaestimada) : this(codigo, cliente, paquete, distanciaestimada, "NORMAL")
+            {
+
+            }
+
+            public Entrega(string codigo, Cliente cliente, Paquete paquete, double distanciaestimada, string tiposervicio)
+            {
+                Codigo = codigo;
+                Cliente = cliente;
+                Paquete = paquete;
+                Distanciaestimada = distanciaestimada;
+                Tiposervicio = tiposervicio;
+                Incidencias = new List<Incidencia>();
+                Fechasolicitud = DateTime.Now;
+            }
+
+            public double FactorServicio()
+            {
+                if (Tiposervicio == "PRIORITARIO")
+                {
+                    return 1.25;
+                }
+
+                if (Tiposervicio == "URGENTE")
+                {
+                    return 1.60;
+                }
+
+                return 1.00;
+            }
+
+            public bool EstaFinalizada()
+            {
+                if (Estado == "ENTREGADA" || Estado == "CANCELADA")
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            public bool EstaActiva()
+            {
+                if (EstaFinalizada() == true)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public bool TransicionPermitida(string actual, string nuevo)
+            {
+                if (actual == "SOLICITADA")
+                {
+                    if (nuevo == "ASIGNADA" || nuevo == "CANCELADA" || nuevo == "REPROGRAMADA" || nuevo == "CON INCIDENCIA")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (actual == "ASIGNADA")
+                {
+                    if (nuevo == "RECOGIDA" || nuevo == "CANCELADA" || nuevo == "REPROGRAMADA" || nuevo == "CON INCIDENCIA")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (actual == "RECOGIDA")
+                {
+                    if (nuevo == "EN RUTA" || nuevo == "CANCELADA" || nuevo == "CON INCIDENCIA")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (actual == "EN RUTA")
+                {
+                    if (nuevo == "ENTREGADA" || nuevo == "CANCELADA" || nuevo == "CON INCIDENCIA")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (actual == "REPROGRAMADA")
+                {
+                    if (nuevo == "ASIGNADA" || nuevo == "CANCELADA" || nuevo == "CON INCIDENCIA")
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (actual == "CON INCIDENCIA")
+                {
+                    if (nuevo == "CANCELADA" || nuevo == "REPROGRAMADA")
+                    {
+                        return true;
+                    }
+
+                    if (nuevo == Estadoanterior)
+                    {
+                        return true;
+                    }
+
+                    if (nuevo == "ENTREGADA" && Estadoanterior == "EN RUTA")
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+
+            public bool CambiarEstado(string nuevoestado)
+            {
+                if (EstaFinalizada() == true)
+                {
+                    Console.WriteLine("Error: La entrega " + Codigo + " ya está " + Estado + " y no se puede modificar.");
+                    return false;
+                }
+
+                if (TransicionPermitida(Estado, nuevoestado) == false)
+                {
+                    Console.WriteLine("Error: No se puede pasar de " + Estado + " a " + nuevoestado + ".");
+                    return false;
+                }
+
+                Estadoanterior = Estado;
+                Estado = nuevoestado;
+
+                if (nuevoestado == "RECOGIDA" || nuevoestado == "EN RUTA")
+                {
+                    Paquete.Estado = "EN TRANSITO";
+                }
+
+                if (nuevoestado == "ENTREGADA")
+                {
+                    Paquete.Estado = "ENTREGADO";
+                    Cliente.incrementarSolicitud();
+
+                    if (Repartidor != null)
+                    {
+                        Repartidor.incrementarEntrega();
+                        Repartidor.Estado = "DISPONIBLE";
+                    }
+
+                    if (Vehiculo != null)
+                    {
+                        Vehiculo.Estado = "DISPONIBLE";
+                    }
+                }
+
+                return true;
+            }
+
+            public bool AsignarRepartidorYVehiculo(Repartidor repartidor, Vehiculo vehiculo)
+            {
+                if (Estado != "SOLICITADA" && Estado != "REPROGRAMADA")
+                {
+                    Console.WriteLine("Error: Solo se puede asignar a una entrega SOLICITADA o REPROGRAMADA.");
+                    return false;
+                }
+
+                if (repartidor.Estado != "DISPONIBLE")
+                {
+                    Console.WriteLine("Error: El repartidor " + repartidor.NombreCompleto + " no está disponible.");
+                    return false;
+                }
+
+                if (vehiculo.Estado != "DISPONIBLE")
+                {
+                    Console.WriteLine("Error: El vehículo " + vehiculo.MyCodigo + " no está disponible.");
+                    return false;
+                }
+
+                if (repartidor.TieneLicencia(vehiculo.MytipoLicencia) == false)
+                {
+                    Console.WriteLine("Error: El repartidor tiene licencia " + repartidor.Tipolicencia + " y ese vehículo pide " + vehiculo.MytipoLicencia + ".");
+                    return false;
+                }
+
+                Repartidor = repartidor;
+                Vehiculo = vehiculo;
+                repartidor.Estado = "ASIGNADO";
+                vehiculo.Estado = "ASIGNADO";
+                Paquete.Estado = "ASIGNADO";
+                Estadoanterior = Estado;
+                Estado = "ASIGNADA";
+                return true;
+            }
+
+            public void CalcularTotal(double tarifadelpaquete)
+            {
+                Tarifabase = tarifadelpaquete * FactorServicio();
+                Recargos = 0;
+
+                if (Distanciaestimada > 50)
+                {
+                    Recargos = Recargos + 20.00;
+                }
+
+                Descuentos = 0;
+
+                if (Cliente.Cantidad >= 5)
+                {
+                    Descuentos = Tarifabase * 0.10;
+                }
+
+                Total = Tarifabase + Recargos - Descuentos;
+            }
+
+            public void AgregarIncidencia(Incidencia incidencia)
+            {
+                Incidencias.Add(incidencia);
+
+                if (EstaActiva() == true)
+                {
+                    Estadoanterior = Estado;
+                    Estado = "CON INCIDENCIA";
+                }
+            }
+
+            public bool Calificar(double nota)
+            {
+                if (Estado != "ENTREGADA")
+                {
+                    Console.WriteLine("Error: Solo se pueden calificar las entregas ya ENTREGADAS.");
+                    return false;
+                }
+
+                if (nota < 1 || nota > 5)
+                {
+                    Console.WriteLine("Error: La calificación debe estar entre 1 y 5.");
+                    return false;
+                }
+
+                Calificacion = nota;
+                return true;
+            }
+
+            public void MostrarInformacionEntrega()
+            {
+                Console.WriteLine("Código: " + Codigo);
+                Console.WriteLine("Fecha de solicitud: " + Fechasolicitud);
+                Console.WriteLine("Cliente: " + Cliente.NombreCompleto);
+                Console.WriteLine("Paquete: " + Paquete.Codigo + " - " + Paquete.Descripcion);
+                Console.WriteLine("Distancia: " + Distanciaestimada + " km");
+                Console.WriteLine("Tipo de servicio: " + Tiposervicio);
+                Console.WriteLine("Estado: " + Estado);
+
+                if (Repartidor == null)
+                {
+                    Console.WriteLine("Repartidor: sin asignar");
+                }
+                else
+                {
+                    Console.WriteLine("Repartidor: " + Repartidor.NombreCompleto);
+                }
+
+                if (Vehiculo == null)
+                {
+                    Console.WriteLine("Vehículo: sin asignar");
+                }
+                else
+                {
+                    Console.WriteLine("Vehículo: " + Vehiculo.MyCodigo + " " + Vehiculo.MyMarca);
+                }
+
+                Console.WriteLine("Tarifa base: Q" + Tarifabase);
+                Console.WriteLine("Recargos: Q" + Recargos);
+                Console.WriteLine("Descuentos: Q" + Descuentos);
+                Console.WriteLine("Total: Q" + Total);
+                Console.WriteLine("Incidencias: " + Incidencias.Count);
+            }
+
+            public bool ValidarDatos()
+            {
+                if (string.IsNullOrWhiteSpace(Codigo))
+                {
+                    Console.WriteLine("Error: El código de la entrega no puede estar vacío.");
+                    return false;
+                }
+
+                if (Cliente == null)
+                {
+                    Console.WriteLine("Error: La entrega debe tener un cliente.");
+                    return false;
+                }
+
+                if (Paquete == null)
+                {
+                    Console.WriteLine("Error: La entrega debe tener un paquete.");
+                    return false;
+                }
+
+                if (Distanciaestimada <= 0)
+                {
+                    Console.WriteLine("Error: La distancia debe ser mayor a 0.");
+                    return false;
+                }
+
+                if (Distanciaestimada > 100)
+                {
+                    Console.WriteLine("Error: GoXela solo cubre hasta 100 km a la redonda.");
+                    return false;
+                }
+
+                if (Tiposervicio != "NORMAL" && Tiposervicio != "PRIORITARIO" && Tiposervicio != "URGENTE")
+                {
+                    Console.WriteLine("Error: El tipo de servicio debe ser NORMAL, PRIORITARIO o URGENTE.");
+                    return false;
+                }
+
+                Console.WriteLine("Datos de la entrega validados correctamente.");
+                return true;
+            }
+
+        }
         static void Main(string[] args)
         {
             Console.WriteLine("Menu :D");
