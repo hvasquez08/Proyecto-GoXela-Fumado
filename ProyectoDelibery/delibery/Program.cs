@@ -1424,6 +1424,61 @@ namespace delibery
             }
 
         }
+        class SistemaGoXela
+        {
+            private List<Cliente> clientes;
+            public List<Cliente> Clientes
+            {
+                get { return clientes; }
+                set { clientes = value; }
+            }
+
+            private List<Repartidor> repartidores;
+            public List<Repartidor> Repartidores
+            {
+                get { return repartidores; }
+                set { repartidores = value; }
+            }
+
+            private List<Vehiculo> vehiculos;
+            public List<Vehiculo> Vehiculos
+            {
+                get { return vehiculos; }
+                set { vehiculos = value; }
+            }
+
+            private List<Paquete> paquetes;
+            public List<Paquete> Paquetes
+            {
+                get { return paquetes; }
+                set { paquetes = value; }
+            }
+
+            private List<Entrega> entregas;
+            public List<Entrega> Entregas
+            {
+                get { return entregas; }
+                set { entregas = value; }
+            }
+
+            private List<Incidencia> incidencias;
+            public List<Incidencia> Incidencias
+            {
+                get { return incidencias; }
+                set { incidencias = value; }
+            }
+
+            public SistemaGoXela()
+            {
+                Clientes = new List<Cliente>();
+                Repartidores = new List<Repartidor>();
+                Vehiculos = new List<Vehiculo>();
+                Paquetes = new List<Paquete>();
+                Entregas = new List<Entrega>();
+                Incidencias = new List<Incidencia>();
+            }
+
+        }
         static void Main(string[] args)
         {
             Console.WriteLine("Menu :D");
