@@ -1654,6 +1654,181 @@ namespace delibery
                 return cuantas;
             }
 
+            public bool AgregarCliente(Cliente cliente)
+            {
+                if (cliente.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarCliente(cliente.Codigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe un cliente con el código " + cliente.Codigo + ".");
+                    return false;
+                }
+
+                Clientes.Add(cliente);
+                return true;
+            }
+
+            public bool AgregarRepartidor(Repartidor repartidor)
+            {
+                if (repartidor.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarRepartidor(repartidor.Codigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe un repartidor con el código " + repartidor.Codigo + ".");
+                    return false;
+                }
+
+                Repartidores.Add(repartidor);
+                return true;
+            }
+
+            public bool AgregarVehiculo(Vehiculo vehiculo)
+            {
+                if (vehiculo.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarVehiculo(vehiculo.MyCodigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe un vehículo con el código " + vehiculo.MyCodigo + ".");
+                    return false;
+                }
+
+                Vehiculos.Add(vehiculo);
+                return true;
+            }
+
+            public bool AgregarPaquete(Paquete paquete)
+            {
+                if (paquete.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarPaquete(paquete.Codigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe un paquete con el código " + paquete.Codigo + ".");
+                    return false;
+                }
+
+                Paquetes.Add(paquete);
+                return true;
+            }
+
+            public bool AgregarEntrega(Entrega entrega)
+            {
+                if (entrega.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarEntrega(entrega.Codigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe una entrega con el código " + entrega.Codigo + ".");
+                    return false;
+                }
+
+                Entregas.Add(entrega);
+                return true;
+            }
+
+            public bool AgregarIncidencia(Incidencia incidencia)
+            {
+                if (incidencia.ValidarDatos() == false)
+                {
+                    return false;
+                }
+
+                if (BuscarIncidencia(incidencia.Codigo) != null)
+                {
+                    Console.WriteLine("Error: Ya existe una incidencia con el código " + incidencia.Codigo + ".");
+                    return false;
+                }
+
+                Entrega entrega = BuscarEntrega(incidencia.Codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + incidencia.Codigoentrega + ".");
+                    return false;
+                }
+
+                Incidencias.Add(incidencia);
+                entrega.AgregarIncidencia(incidencia);
+                return true;
+            }
+
+            public Entrega CrearEntrega(string codigocliente, string codigopaquete, double distancia, string tiposervicio)
+            {
+                Cliente cliente = BuscarCliente(codigocliente);
+
+                if (cliente == null)
+                {
+                    Console.WriteLine("Error: No existe el cliente " + codigocliente + ".");
+                    return null;
+                }
+
+                Paquete paquete = BuscarPaquete(codigopaquete);
+
+                if (paquete == null)
+                {
+                    Console.WriteLine("Error: No existe el paquete " + codigopaquete + ".");
+                    return null;
+                }
+
+                if (paquete.Estado != "REGISTRADO")
+                {
+                    Console.WriteLine("Error: El paquete " + codigopaquete + " ya está " + paquete.Estado + ".");
+                    return null;
+                }
+
+                Entrega entrega = new Entrega(SiguienteCodigoEntrega(), cliente, paquete, distancia, tiposervicio);
+
+                if (AgregarEntrega(entrega) == false)
+                {
+                    return null;
+                }
+
+                paquete.Estado = "ASIGNADO";
+                return entrega;
+            }
+
+            public bool AsignarRepartidorYVehiculo(string codigoentrega, string codigorepartidor, string codigovehiculo)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                Repartidor repartidor = BuscarRepartidor(codigorepartidor);
+
+                if (repartidor == null)
+                {
+                    Console.WriteLine("Error: No existe el repartidor " + codigorepartidor + ".");
+                    return false;
+                }
+
+                Vehiculo vehiculo = BuscarVehiculo(codigovehiculo);
+
+                if (vehiculo == null)
+                {
+                    Console.WriteLine("Error: No existe el vehículo " + codigovehiculo + ".");
+                    return false;
+                }
+
+                return entrega.AsignarRepartidorYVehiculo(repartidor, vehiculo);
+            }
+
         }
         static void Main(string[] args)
         {
