@@ -2144,6 +2144,210 @@ namespace delibery
             }
         }
 
+        static void MenuPrincipal()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("GOXELA DELIVERY");
+                Console.WriteLine();
+                Console.WriteLine("1. Clientes");
+                Console.WriteLine("2. Repartidores");
+                Console.WriteLine("3. Vehículos");
+                Console.WriteLine("4. Paquetes");
+                Console.WriteLine("5. Entregas");
+                Console.WriteLine("6. Incidencias");
+                Console.WriteLine("7. Reportes");
+                Console.WriteLine("0. Salir");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    MenuClientes();
+                }
+                else if (opcion == "0")
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Gracias por usar GoXela Delivery.");
+                    return;
+                }
+                else if (opcion == "2" || opcion == "3" || opcion == "4" || opcion == "5" || opcion == "6" || opcion == "7")
+                {
+                    MostrarError("Esa parte todavía no está lista.");
+                    Pausa();
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void MenuClientes()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("CLIENTES");
+                Console.WriteLine();
+                Console.WriteLine("1. Registrar cliente");
+                Console.WriteLine("2. Consultar cliente");
+                Console.WriteLine("3. Listar clientes");
+                Console.WriteLine("4. Actualizar cliente");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    RegistrarCliente();
+                }
+                else if (opcion == "2")
+                {
+                    ConsultarCliente();
+                }
+                else if (opcion == "3")
+                {
+                    ListarClientes();
+                }
+                else if (opcion == "4")
+                {
+                    ActualizarCliente();
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void RegistrarCliente()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Registrar cliente");
+            Console.WriteLine();
+
+            string codigo = sistema.SiguienteCodigoCliente();
+            Console.WriteLine("Código asignado: " + codigo);
+            Console.WriteLine();
+
+            string nombre = LeerTexto("Nombre completo: ");
+            string telefono = LeerTexto("Teléfono (8 dígitos): ");
+            string correo = LeerTexto("Correo: ");
+            string direccion = LeerTexto("Dirección: ");
+
+            Cliente cliente = new Cliente(codigo, nombre, telefono, correo, direccion, 1);
+
+            if (sistema.AgregarCliente(cliente) == true)
+            {
+                MostrarExito("Cliente " + codigo + " registrado.");
+            }
+            else
+            {
+                MostrarError("No se pudo registrar el cliente.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarCliente()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del cliente: ");
+            Cliente cliente = sistema.BuscarCliente(codigo);
+
+            if (cliente == null)
+            {
+                MostrarError("No existe el cliente " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                cliente.MostrarInformacionCliente();
+            }
+
+            Pausa();
+        }
+
+        static void ListarClientes()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Clientes registrados: " + sistema.Clientes.Count);
+            Console.WriteLine();
+
+            if (sistema.Clientes.Count == 0)
+            {
+                Console.WriteLine("Todavía no hay clientes.");
+            }
+
+            for (int i = 0; i < sistema.Clientes.Count; i++)
+            {
+                Cliente cliente = sistema.Clientes[i];
+                Console.WriteLine(cliente.Codigo + "   " + cliente.NombreCompleto + "   " + cliente.Telefono + "   " + cliente.Correo);
+            }
+
+            Pausa();
+        }
+
+        static void ActualizarCliente()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del cliente: ");
+            Cliente cliente = sistema.BuscarCliente(codigo);
+
+            if (cliente == null)
+            {
+                MostrarError("No existe el cliente " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            cliente.MostrarInformacionCliente();
+            Console.WriteLine();
+            Console.WriteLine("Deje vacío lo que no quiera cambiar.");
+            Console.WriteLine();
+
+            string telefono = LeerTextoOpcional("Teléfono nuevo: ");
+
+            if (telefono != "")
+            {
+                cliente.Telefono = telefono;
+            }
+
+            string correo = LeerTextoOpcional("Correo nuevo: ");
+
+            if (correo != "")
+            {
+                cliente.Correo = correo;
+            }
+
+            string direccion = LeerTextoOpcional("Dirección nueva: ");
+
+            if (direccion != "")
+            {
+                cliente.Direccion = direccion;
+            }
+
+            if (cliente.ValidarDatos() == true)
+            {
+                MostrarExito("Cliente actualizado.");
+            }
+            else
+            {
+                MostrarError("Quedaron datos inválidos, revise.");
+            }
+
+            Pausa();
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Menu :D");
