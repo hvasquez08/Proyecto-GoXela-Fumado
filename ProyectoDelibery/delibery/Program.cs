@@ -1829,6 +1829,173 @@ namespace delibery
                 return entrega.AsignarRepartidorYVehiculo(repartidor, vehiculo);
             }
 
+            public void LiberarRepartidorYVehiculo(Entrega entrega)
+            {
+                if (entrega.Repartidor != null)
+                {
+                    entrega.Repartidor.Estado = "DISPONIBLE";
+                }
+
+                if (entrega.Vehiculo != null)
+                {
+                    entrega.Vehiculo.Estado = "DISPONIBLE";
+                }
+            }
+
+            public bool CambiarEstadoEntrega(string codigoentrega, string nuevoestado)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                return entrega.CambiarEstado(nuevoestado);
+            }
+
+            public bool CancelarEntrega(string codigoentrega)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                if (entrega.CambiarEstado("CANCELADA") == false)
+                {
+                    return false;
+                }
+
+                LiberarRepartidorYVehiculo(entrega);
+                entrega.Paquete.Estado = "REGISTRADO";
+                return true;
+            }
+
+            public bool ReprogramarEntrega(string codigoentrega)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                if (entrega.CambiarEstado("REPROGRAMADA") == false)
+                {
+                    return false;
+                }
+
+                LiberarRepartidorYVehiculo(entrega);
+                entrega.Repartidor = null;
+                entrega.Vehiculo = null;
+                return true;
+            }
+
+            public Incidencia RegistrarIncidencia(string codigoentrega, string tipo, string descripcion)
+            {
+                return RegistrarIncidencia(codigoentrega, tipo, descripcion, "Pendiente de revisión");
+            }
+
+            public Incidencia RegistrarIncidencia(string codigoentrega, string tipo, string descripcion, string acciontomada)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return null;
+                }
+
+                if (entrega.EstaFinalizada() == true)
+                {
+                    Console.WriteLine("Error: La entrega " + codigoentrega + " ya está " + entrega.Estado + ".");
+                    return null;
+                }
+
+                Incidencia incidencia = new Incidencia(SiguienteCodigoIncidencia(), codigoentrega, tipo, descripcion, acciontomada);
+
+                if (AgregarIncidencia(incidencia) == false)
+                {
+                    return null;
+                }
+
+                return incidencia;
+            }
+
+            public bool CerrarIncidencia(string codigoincidencia, string acciontomada)
+            {
+                Incidencia incidencia = BuscarIncidencia(codigoincidencia);
+
+                if (incidencia == null)
+                {
+                    Console.WriteLine("Error: No existe la incidencia " + codigoincidencia + ".");
+                    return false;
+                }
+
+                if (incidencia.Estado == "CERRADA")
+                {
+                    Console.WriteLine("Error: La incidencia " + codigoincidencia + " ya estaba cerrada.");
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(acciontomada))
+                {
+                    Console.WriteLine("Error: Hay que escribir qué se hizo para cerrar la incidencia.");
+                    return false;
+                }
+
+                incidencia.CerrarIncidencia(acciontomada);
+                return true;
+            }
+
+            public void RecalcularCalificacionRepartidor(Repartidor repartidor)
+            {
+                double suma = 0;
+                int cuantas = 0;
+
+                for (int i = 0; i < Entregas.Count; i++)
+                {
+                    if (Entregas[i].Repartidor == repartidor && Entregas[i].Calificacion > 0)
+                    {
+                        suma = suma + Entregas[i].Calificacion;
+                        cuantas = cuantas + 1;
+                    }
+                }
+
+                if (cuantas > 0)
+                {
+                    repartidor.Calificacion = suma / cuantas;
+                }
+            }
+
+            public bool CalificarEntrega(string codigoentrega, double nota)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                if (entrega.Calificar(nota) == false)
+                {
+                    return false;
+                }
+
+                if (entrega.Repartidor != null)
+                {
+                    RecalcularCalificacionRepartidor(entrega.Repartidor);
+                }
+
+                return true;
+            }
+
         }
         static void Main(string[] args)
         {
