@@ -1478,6 +1478,182 @@ namespace delibery
                 Incidencias = new List<Incidencia>();
             }
 
+            private int correlativocliente = 0;
+            private int correlativorepartidor = 0;
+            private int correlativovehiculo = 0;
+            private int correlativopaquete = 0;
+            private int correlativoentrega = 0;
+            private int correlativoincidencia = 0;
+
+            public string SiguienteCodigoCliente()
+            {
+                correlativocliente = correlativocliente + 1;
+                return "CLI" + correlativocliente.ToString("000");
+            }
+
+            public string SiguienteCodigoRepartidor()
+            {
+                correlativorepartidor = correlativorepartidor + 1;
+                return "REP" + correlativorepartidor.ToString("000");
+            }
+
+            public string SiguienteCodigoVehiculo()
+            {
+                correlativovehiculo = correlativovehiculo + 1;
+                return "VEH" + correlativovehiculo.ToString("000");
+            }
+
+            public string SiguienteCodigoPaquete()
+            {
+                correlativopaquete = correlativopaquete + 1;
+                return "PAQ" + correlativopaquete.ToString("000");
+            }
+
+            public string SiguienteCodigoEntrega()
+            {
+                correlativoentrega = correlativoentrega + 1;
+                return "ENT" + correlativoentrega.ToString("000");
+            }
+
+            public string SiguienteCodigoIncidencia()
+            {
+                correlativoincidencia = correlativoincidencia + 1;
+                return "INC" + correlativoincidencia.ToString("000");
+            }
+
+            public Cliente BuscarCliente(string codigo)
+            {
+                for (int i = 0; i < Clientes.Count; i++)
+                {
+                    if (Clientes[i].Codigo == codigo)
+                    {
+                        return Clientes[i];
+                    }
+                }
+                return null;
+            }
+
+            public Cliente BuscarCliente(int posicion)
+            {
+                if (posicion < 0 || posicion >= Clientes.Count)
+                {
+                    Console.WriteLine("Error: No existe un cliente en la posición " + posicion + ".");
+                    return null;
+                }
+                return Clientes[posicion];
+            }
+
+            public Cliente BuscarClientePorTelefono(string telefono)
+            {
+                for (int i = 0; i < Clientes.Count; i++)
+                {
+                    if (Clientes[i].Telefono == telefono)
+                    {
+                        return Clientes[i];
+                    }
+                }
+                return null;
+            }
+
+            public Repartidor BuscarRepartidor(string codigo)
+            {
+                for (int i = 0; i < Repartidores.Count; i++)
+                {
+                    if (Repartidores[i].Codigo == codigo)
+                    {
+                        return Repartidores[i];
+                    }
+                }
+                return null;
+            }
+
+            public Vehiculo BuscarVehiculo(string codigo)
+            {
+                for (int i = 0; i < Vehiculos.Count; i++)
+                {
+                    if (Vehiculos[i].MyCodigo == codigo)
+                    {
+                        return Vehiculos[i];
+                    }
+                }
+                return null;
+            }
+
+            public Paquete BuscarPaquete(string codigo)
+            {
+                for (int i = 0; i < Paquetes.Count; i++)
+                {
+                    if (Paquetes[i].Codigo == codigo)
+                    {
+                        return Paquetes[i];
+                    }
+                }
+                return null;
+            }
+
+            public Entrega BuscarEntrega(string codigo)
+            {
+                for (int i = 0; i < Entregas.Count; i++)
+                {
+                    if (Entregas[i].Codigo == codigo)
+                    {
+                        return Entregas[i];
+                    }
+                }
+                return null;
+            }
+
+            public Incidencia BuscarIncidencia(string codigo)
+            {
+                for (int i = 0; i < Incidencias.Count; i++)
+                {
+                    if (Incidencias[i].Codigo == codigo)
+                    {
+                        return Incidencias[i];
+                    }
+                }
+                return null;
+            }
+
+            public int ContarRepartidoresDisponibles()
+            {
+                int cuantos = 0;
+                for (int i = 0; i < Repartidores.Count; i++)
+                {
+                    if (Repartidores[i].Estado == "DISPONIBLE")
+                    {
+                        cuantos = cuantos + 1;
+                    }
+                }
+                return cuantos;
+            }
+
+            public int ContarVehiculosDisponibles()
+            {
+                int cuantos = 0;
+                for (int i = 0; i < Vehiculos.Count; i++)
+                {
+                    if (Vehiculos[i].Estado == "DISPONIBLE")
+                    {
+                        cuantos = cuantos + 1;
+                    }
+                }
+                return cuantos;
+            }
+
+            public int ContarEntregasActivas()
+            {
+                int cuantas = 0;
+                for (int i = 0; i < Entregas.Count; i++)
+                {
+                    if (Entregas[i].EstaActiva() == true)
+                    {
+                        cuantas = cuantas + 1;
+                    }
+                }
+                return cuantas;
+            }
+
         }
         static void Main(string[] args)
         {
