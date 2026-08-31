@@ -1996,7 +1996,154 @@ namespace delibery
                 return true;
             }
 
+            public double CalcularTarifaDelPaquete(Paquete paquete, double distancia)
+            {
+                if (paquete is Documento)
+                {
+                    Documento documento = (Documento)paquete;
+                    return documento.CalcularTarifaBase(distancia);
+                }
+
+                if (paquete is PaqueteFragil)
+                {
+                    PaqueteFragil fragil = (PaqueteFragil)paquete;
+                    return fragil.CalcularTarifaBase(distancia);
+                }
+
+                if (paquete is ProductoRefrigerado)
+                {
+                    ProductoRefrigerado refrigerado = (ProductoRefrigerado)paquete;
+                    return refrigerado.CalcularTarifaBase(distancia);
+                }
+
+                if (paquete is PaqueteEstandar)
+                {
+                    PaqueteEstandar estandar = (PaqueteEstandar)paquete;
+                    return estandar.CalcularTarifaBase(distancia);
+                }
+
+                return 0;
+            }
+
+            public bool CalcularTarifa(string codigoentrega)
+            {
+                Entrega entrega = BuscarEntrega(codigoentrega);
+
+                if (entrega == null)
+                {
+                    Console.WriteLine("Error: No existe la entrega " + codigoentrega + ".");
+                    return false;
+                }
+
+                double tarifadelpaquete = CalcularTarifaDelPaquete(entrega.Paquete, entrega.Distanciaestimada);
+
+                if (tarifadelpaquete <= 0)
+                {
+                    Console.WriteLine("Error: No se pudo calcular la tarifa del paquete " + entrega.Paquete.Codigo + ".");
+                    return false;
+                }
+
+                entrega.CalcularTotal(tarifadelpaquete);
+                return true;
+            }
+
         }
+        static SistemaGoXela sistema = new SistemaGoXela();
+
+        static void Titulo(string texto)
+        {
+            Console.WriteLine();
+            Console.WriteLine("========================================================================");
+            Console.WriteLine("  " + texto.ToUpper());
+            Console.WriteLine("========================================================================");
+        }
+
+        static void Separador()
+        {
+            Console.WriteLine("------------------------------------------------------------------------");
+        }
+
+        static void MostrarError(string mensaje)
+        {
+            Console.WriteLine();
+            Console.WriteLine("  *** " + mensaje);
+        }
+
+        static void MostrarExito(string mensaje)
+        {
+            Console.WriteLine();
+            Console.WriteLine("  >>> " + mensaje);
+        }
+
+        static void Pausa()
+        {
+            Console.WriteLine();
+            Console.Write("Presione ENTER para continuar...");
+            Console.ReadLine();
+        }
+
+        static void Limpiar()
+        {
+            Console.Clear();
+        }
+
+        static string LeerTexto(string mensaje)
+        {
+            while (true)
+            {
+                Console.Write(mensaje);
+                string texto = Console.ReadLine();
+
+                if (texto != null)
+                {
+                    texto = texto.Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(texto) == false)
+                {
+                    return texto;
+                }
+
+                MostrarError("Este dato no puede quedar vacío.");
+            }
+        }
+
+        static string LeerTextoOpcional(string mensaje)
+        {
+            Console.Write(mensaje);
+            string texto = Console.ReadLine();
+
+            if (texto == null)
+            {
+                return "";
+            }
+
+            return texto.Trim();
+        }
+
+        static double LeerNumero(string mensaje)
+        {
+            while (true)
+            {
+                Console.Write(mensaje);
+                string texto = Console.ReadLine();
+
+                if (texto != null)
+                {
+                    texto = texto.Trim().Replace(",", ".");
+                }
+
+                double numero;
+
+                if (double.TryParse(texto, out numero) == true)
+                {
+                    return numero;
+                }
+
+                MostrarError("Eso no es un número. Intente de nuevo.");
+            }
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Menu :D");
