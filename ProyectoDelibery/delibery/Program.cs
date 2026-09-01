@@ -125,7 +125,7 @@ namespace delibery
             {
                 Cantidad++;
             }
-            public bool ValidarDatos()
+            public new bool ValidarDatos()
             {
                 if (!base.ValidarDatos())
                 {
@@ -344,13 +344,13 @@ namespace delibery
 
             public Vehiculo(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia)
             {
-                codigo = MyCodigo;
-                placa = MyPlaca;
-                marca = MyMarca;
-                modelo = MyModelo;
-                cargaMaxima = Mycargamaxima;
-                costoOperativo = MycostoOperativo;
-                tipoLicencia = MytipoLicencia;
+                MyCodigo = codigo;
+                MyPlaca = placa;
+                MyMarca = marca;
+                MyModelo = modelo;
+                Mycargamaxima = cargaMaxima;
+                MycostoOperativo = costoOperativo;
+                MytipoLicencia = tipoLicencia;
             }
 
             private string estado = "DISPONIBLE";
@@ -2173,7 +2173,11 @@ namespace delibery
                     Console.WriteLine("Gracias por usar GoXela Delivery.");
                     return;
                 }
-                else if (opcion == "2" || opcion == "3" || opcion == "4" || opcion == "5" || opcion == "6" || opcion == "7")
+                else if (opcion == "2")
+                {
+                    MenuRepartidores();
+                }
+                else if (opcion == "3" || opcion == "4" || opcion == "5" || opcion == "6" || opcion == "7")
                 {
                     MostrarError("Esa parte todavía no está lista.");
                     Pausa();
@@ -2226,6 +2230,173 @@ namespace delibery
                     MostrarError("Opción no válida.");
                 }
             }
+        }
+
+        static void MenuRepartidores()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("REPARTIDORES");
+                Console.WriteLine();
+                Console.WriteLine("1. Registrar repartidor");
+                Console.WriteLine("2. Consultar repartidor");
+                Console.WriteLine("3. Listar repartidores");
+                Console.WriteLine("4. Cambiar estado");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    RegistrarRepartidor();
+                }
+                else if (opcion == "2")
+                {
+                    ConsultarRepartidor();
+                }
+                else if (opcion == "3")
+                {
+                    ListarRepartidores();
+                }
+                else if (opcion == "4")
+                {
+                    CambiarEstadoRepartidor();
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void RegistrarRepartidor()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Registrar repartidor");
+            Console.WriteLine();
+
+            string codigo = sistema.SiguienteCodigoRepartidor();
+            Console.WriteLine("Código asignado: " + codigo);
+            Console.WriteLine();
+
+            string nombre = LeerTexto("Nombre completo: ");
+            string telefono = LeerTexto("Teléfono (8 dígitos): ");
+
+            Console.WriteLine();
+            Console.WriteLine("Licencias: NINGUNA (solo bicicleta), M (motos), A o B (todo)");
+            string tipolicencia = LeerTexto("Tipo de licencia: ").ToUpper();
+
+            string numerolicencia = "";
+
+            if (tipolicencia != "NINGUNA")
+            {
+                numerolicencia = LeerTexto("Número de licencia: ");
+            }
+
+            Repartidor repartidor = new Repartidor(codigo, nombre, telefono, numerolicencia, tipolicencia);
+
+            if (sistema.AgregarRepartidor(repartidor) == true)
+            {
+                MostrarExito("Repartidor " + codigo + " registrado.");
+            }
+            else
+            {
+                MostrarError("No se pudo registrar el repartidor.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarRepartidor()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del repartidor: ");
+            Repartidor repartidor = sistema.BuscarRepartidor(codigo);
+
+            if (repartidor == null)
+            {
+                MostrarError("No existe el repartidor " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                repartidor.MostrarInformacionRepartidor();
+            }
+
+            Pausa();
+        }
+
+        static void ListarRepartidores()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Repartidores registrados: " + sistema.Repartidores.Count + "   Disponibles: " + sistema.ContarRepartidoresDisponibles());
+            Console.WriteLine();
+
+            if (sistema.Repartidores.Count == 0)
+            {
+                Console.WriteLine("Todavía no hay repartidores.");
+            }
+
+            for (int i = 0; i < sistema.Repartidores.Count; i++)
+            {
+                Repartidor repartidor = sistema.Repartidores[i];
+                Console.WriteLine(repartidor.Codigo + "   " + repartidor.NombreCompleto + "   licencia " + repartidor.Tipolicencia + "   " + repartidor.Estado + "   entregas: " + repartidor.Entregasrealizadas);
+            }
+
+            Pausa();
+        }
+
+        static void CambiarEstadoRepartidor()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del repartidor: ");
+            Repartidor repartidor = sistema.BuscarRepartidor(codigo);
+
+            if (repartidor == null)
+            {
+                MostrarError("No existe el repartidor " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (repartidor.Estado == "ASIGNADO")
+            {
+                MostrarError("Está ASIGNADO a una entrega. Hay que cerrarla o cancelarla primero.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Estado actual: " + repartidor.Estado);
+            Console.WriteLine();
+            Console.WriteLine("1. DISPONIBLE");
+            Console.WriteLine("2. FUERA DE SERVICIO");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Nuevo estado: ");
+
+            if (opcion == "1")
+            {
+                repartidor.Estado = "DISPONIBLE";
+                MostrarExito("Ahora está DISPONIBLE.");
+            }
+            else if (opcion == "2")
+            {
+                repartidor.Estado = "FUERA DE SERVICIO";
+                MostrarExito("Ahora está FUERA DE SERVICIO.");
+            }
+            else
+            {
+                MostrarError("Opción no válida.");
+            }
+
+            Pausa();
         }
 
         static void RegistrarCliente()
@@ -2350,7 +2521,7 @@ namespace delibery
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Menu :D");
+            MenuPrincipal();
         }
     }
 }
