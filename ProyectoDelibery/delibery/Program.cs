@@ -2936,6 +2936,12 @@ namespace delibery
                 Console.WriteLine("3. Consultar entrega");
                 Console.WriteLine("4. Listar todas");
                 Console.WriteLine("5. Listar solo las activas");
+                Console.WriteLine("6. Cambiar estado");
+                Console.WriteLine("7. Confirmar entrega");
+                Console.WriteLine("8. Cancelar entrega");
+                Console.WriteLine("9. Reprogramar entrega");
+                Console.WriteLine("10. Calificar entrega");
+                Console.WriteLine("11. Recalcular tarifa");
                 Console.WriteLine("0. Regresar");
                 Console.WriteLine();
 
@@ -2960,6 +2966,30 @@ namespace delibery
                 else if (opcion == "5")
                 {
                     ListarEntregas(true);
+                }
+                else if (opcion == "6")
+                {
+                    ActualizarEstadoDeEntrega();
+                }
+                else if (opcion == "7")
+                {
+                    ConfirmarEntrega();
+                }
+                else if (opcion == "8")
+                {
+                    CancelarEntrega();
+                }
+                else if (opcion == "9")
+                {
+                    ReprogramarEntrega();
+                }
+                else if (opcion == "10")
+                {
+                    CalificarEntrega();
+                }
+                else if (opcion == "11")
+                {
+                    RecalcularTarifa();
                 }
                 else if (opcion == "0")
                 {
@@ -3169,6 +3199,209 @@ namespace delibery
 
                     Console.WriteLine(entrega.Codigo + "   " + entrega.Cliente.NombreCompleto + "   " + entrega.Paquete.Codigo + "   " + entrega.Tiposervicio + "   Q" + entrega.Total + "   " + entrega.Estado + "   " + nombrerepartidor);
                 }
+            }
+
+            Pausa();
+        }
+
+        static void ActualizarEstadoDeEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (entrega.EstaFinalizada() == true)
+            {
+                MostrarError("La entrega ya está " + entrega.Estado + " y no se puede mover.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Estado actual: " + entrega.Estado);
+            Console.WriteLine();
+            Console.WriteLine("1. RECOGIDA");
+            Console.WriteLine("2. EN RUTA");
+            Console.WriteLine("3. CON INCIDENCIA");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Nuevo estado: ");
+            string nuevo = "";
+
+            if (opcion == "1")
+            {
+                nuevo = "RECOGIDA";
+            }
+            else if (opcion == "2")
+            {
+                nuevo = "EN RUTA";
+            }
+            else if (opcion == "3")
+            {
+                nuevo = "CON INCIDENCIA";
+            }
+            else
+            {
+                MostrarError("Opción no válida.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CambiarEstadoEntrega(codigo, nuevo) == true)
+            {
+                MostrarExito("La entrega quedó en " + entrega.Estado + ".");
+            }
+
+            Pausa();
+        }
+
+        static void ConfirmarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CambiarEstadoEntrega(codigo, "ENTREGADA") == true)
+            {
+                MostrarExito("Entrega " + codigo + " confirmada. Se cobró Q" + entrega.Total);
+                Console.WriteLine("El paquete quedó ENTREGADO y el repartidor y el vehículo volvieron a estar disponibles.");
+            }
+
+            Pausa();
+        }
+
+        static void CancelarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            entrega.MostrarInformacionEntrega();
+            Console.WriteLine();
+
+            string respuesta = LeerTexto("¿Seguro que la quiere cancelar? (s/n): ");
+
+            if (respuesta.ToLower() != "s")
+            {
+                Console.WriteLine();
+                Console.WriteLine("No se canceló nada.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CancelarEntrega(codigo) == true)
+            {
+                MostrarExito("Entrega " + codigo + " cancelada. El paquete quedó libre otra vez.");
+            }
+
+            Pausa();
+        }
+
+        static void ReprogramarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (sistema.ReprogramarEntrega(codigo) == true)
+            {
+                MostrarExito("Entrega " + codigo + " reprogramada.");
+                Console.WriteLine("Quedó sin repartidor ni vehículo, hay que asignarla de nuevo.");
+            }
+
+            Pausa();
+        }
+
+        static void CalificarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            double nota = LeerNumero("Calificación del 1 al 5: ");
+
+            if (sistema.CalificarEntrega(codigo, nota) == true)
+            {
+                MostrarExito("Gracias por calificar.");
+
+                if (entrega.Repartidor != null)
+                {
+                    Console.WriteLine("El promedio de " + entrega.Repartidor.NombreCompleto + " quedó en " + entrega.Repartidor.Calificacion);
+                }
+            }
+
+            Pausa();
+        }
+
+        static void RecalcularTarifa()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Distancia actual: " + entrega.Distanciaestimada + " km");
+            double distancia = LeerNumero("Distancia nueva en km: ");
+
+            if (distancia <= 0 || distancia > 100)
+            {
+                MostrarError("La distancia debe estar entre 1 y 100 km.");
+                Pausa();
+                return;
+            }
+
+            entrega.Distanciaestimada = distancia;
+
+            if (sistema.CalcularTarifa(codigo) == true)
+            {
+                MostrarExito("Tarifa recalculada.");
+                Console.WriteLine("Tarifa base: Q" + entrega.Tarifabase);
+                Console.WriteLine("Recargos   : Q" + entrega.Recargos);
+                Console.WriteLine("Descuentos : Q" + entrega.Descuentos);
+                Console.WriteLine("Total      : Q" + entrega.Total);
             }
 
             Pausa();
