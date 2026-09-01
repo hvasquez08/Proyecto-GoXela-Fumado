@@ -2177,7 +2177,19 @@ namespace delibery
                 {
                     MenuRepartidores();
                 }
-                else if (opcion == "3" || opcion == "4" || opcion == "5" || opcion == "6" || opcion == "7")
+                else if (opcion == "3")
+                {
+                    MenuVehiculos();
+                }
+                else if (opcion == "4")
+                {
+                    MenuPaquetes();
+                }
+                else if (opcion == "5")
+                {
+                    MenuEntregas();
+                }
+                else if (opcion == "6" || opcion == "7")
                 {
                     MostrarError("Esa parte todavía no está lista.");
                     Pausa();
@@ -2514,6 +2526,649 @@ namespace delibery
             else
             {
                 MostrarError("Quedaron datos inválidos, revise.");
+            }
+
+            Pausa();
+        }
+
+        static void MenuVehiculos()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("VEHICULOS");
+                Console.WriteLine();
+                Console.WriteLine("1. Registrar vehículo");
+                Console.WriteLine("2. Consultar vehículo");
+                Console.WriteLine("3. Listar vehículos");
+                Console.WriteLine("4. Cambiar estado");
+                Console.WriteLine("5. Probar si un repartidor puede manejarlo");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    RegistrarVehiculo();
+                }
+                else if (opcion == "2")
+                {
+                    ConsultarVehiculo();
+                }
+                else if (opcion == "3")
+                {
+                    ListarVehiculos();
+                }
+                else if (opcion == "4")
+                {
+                    CambiarEstadoVehiculo();
+                }
+                else if (opcion == "5")
+                {
+                    ProbarCompatibilidad();
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void RegistrarVehiculo()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Registrar vehículo");
+            Console.WriteLine();
+            Console.WriteLine("1. Bicicleta");
+            Console.WriteLine("2. Motocicleta");
+            Console.WriteLine("3. Automóvil");
+            Console.WriteLine();
+
+            string tipo = LeerTexto("Tipo: ");
+
+            if (tipo != "1" && tipo != "2" && tipo != "3")
+            {
+                MostrarError("Opción no válida.");
+                Pausa();
+                return;
+            }
+
+            string codigo = sistema.SiguienteCodigoVehiculo();
+            Console.WriteLine();
+            Console.WriteLine("Código asignado: " + codigo);
+            Console.WriteLine();
+
+            string placa = "SIN PLACA";
+
+            if (tipo != "1")
+            {
+                placa = LeerTexto("Placa: ");
+            }
+
+            string marca = LeerTexto("Marca: ");
+            string modelo = LeerTexto("Modelo: ");
+            double carga = LeerNumero("Carga máxima en kg: ");
+            double costo = LeerNumero("Costo por kilómetro: Q");
+
+            Vehiculo vehiculo = null;
+
+            if (tipo == "1")
+            {
+                vehiculo = new bicicleta(codigo, placa, marca, modelo, carga, costo, "NINGUNA");
+            }
+            else if (tipo == "2")
+            {
+                vehiculo = new Motocicleta(codigo, placa, marca, modelo, carga, costo, "M");
+            }
+            else
+            {
+                vehiculo = new automovil(codigo, placa, marca, modelo, carga, costo, "A o B");
+            }
+
+            if (sistema.AgregarVehiculo(vehiculo) == true)
+            {
+                MostrarExito("Vehículo " + codigo + " registrado.");
+            }
+            else
+            {
+                MostrarError("No se pudo registrar el vehículo.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarVehiculo()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del vehículo: ");
+            Vehiculo vehiculo = sistema.BuscarVehiculo(codigo);
+
+            if (vehiculo == null)
+            {
+                MostrarError("No existe el vehículo " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                vehiculo.MostrarInformacionVehiculo();
+            }
+
+            Pausa();
+        }
+
+        static void ListarVehiculos()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Vehículos registrados: " + sistema.Vehiculos.Count + "   Disponibles: " + sistema.ContarVehiculosDisponibles());
+            Console.WriteLine();
+
+            if (sistema.Vehiculos.Count == 0)
+            {
+                Console.WriteLine("Todavía no hay vehículos.");
+            }
+
+            for (int i = 0; i < sistema.Vehiculos.Count; i++)
+            {
+                Vehiculo vehiculo = sistema.Vehiculos[i];
+                Console.WriteLine(vehiculo.MyCodigo + "   " + vehiculo.MyMarca + " " + vehiculo.MyModelo + "   " + vehiculo.Mycargamaxima + " kg   licencia " + vehiculo.MytipoLicencia + "   " + vehiculo.Estado);
+            }
+
+            Pausa();
+        }
+
+        static void CambiarEstadoVehiculo()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del vehículo: ");
+            Vehiculo vehiculo = sistema.BuscarVehiculo(codigo);
+
+            if (vehiculo == null)
+            {
+                MostrarError("No existe el vehículo " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (vehiculo.Estado == "ASIGNADO")
+            {
+                MostrarError("Está ASIGNADO a una entrega. Hay que cerrarla o cancelarla primero.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Estado actual: " + vehiculo.Estado);
+            Console.WriteLine();
+            Console.WriteLine("1. DISPONIBLE");
+            Console.WriteLine("2. EN MANTENIMIENTO");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Nuevo estado: ");
+
+            if (opcion == "1")
+            {
+                vehiculo.Estado = "DISPONIBLE";
+                MostrarExito("Ahora está DISPONIBLE.");
+            }
+            else if (opcion == "2")
+            {
+                vehiculo.Estado = "EN MANTENIMIENTO";
+                MostrarExito("Ahora está EN MANTENIMIENTO.");
+            }
+            else
+            {
+                MostrarError("Opción no válida.");
+            }
+
+            Pausa();
+        }
+
+        static void ProbarCompatibilidad()
+        {
+            Console.WriteLine();
+            string codigorepartidor = LeerTexto("Código del repartidor: ");
+            Repartidor repartidor = sistema.BuscarRepartidor(codigorepartidor);
+
+            if (repartidor == null)
+            {
+                MostrarError("No existe el repartidor " + codigorepartidor + ".");
+                Pausa();
+                return;
+            }
+
+            string codigovehiculo = LeerTexto("Código del vehículo: ");
+            Vehiculo vehiculo = sistema.BuscarVehiculo(codigovehiculo);
+
+            if (vehiculo == null)
+            {
+                MostrarError("No existe el vehículo " + codigovehiculo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("El repartidor tiene licencia: " + repartidor.Tipolicencia);
+            Console.WriteLine("El vehículo pide licencia   : " + vehiculo.MytipoLicencia);
+
+            if (repartidor.TieneLicencia(vehiculo.MytipoLicencia) == true)
+            {
+                MostrarExito("Sí puede manejarlo.");
+            }
+            else
+            {
+                MostrarError("No puede manejarlo.");
+            }
+
+            Pausa();
+        }
+
+        static void MenuPaquetes()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("PAQUETES");
+                Console.WriteLine();
+                Console.WriteLine("1. Registrar paquete");
+                Console.WriteLine("2. Consultar paquete");
+                Console.WriteLine("3. Listar paquetes");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    RegistrarPaquete();
+                }
+                else if (opcion == "2")
+                {
+                    ConsultarPaquete();
+                }
+                else if (opcion == "3")
+                {
+                    ListarPaquetes();
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void RegistrarPaquete()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Registrar paquete");
+            Console.WriteLine();
+            Console.WriteLine("1. Documento (máximo 2 kg)");
+            Console.WriteLine("2. Estándar");
+            Console.WriteLine("3. Frágil");
+            Console.WriteLine("4. Refrigerado");
+            Console.WriteLine();
+
+            string tipo = LeerTexto("Tipo: ");
+
+            if (tipo != "1" && tipo != "2" && tipo != "3" && tipo != "4")
+            {
+                MostrarError("Opción no válida.");
+                Pausa();
+                return;
+            }
+
+            string codigo = sistema.SiguienteCodigoPaquete();
+            Console.WriteLine();
+            Console.WriteLine("Código asignado: " + codigo);
+            Console.WriteLine();
+
+            string descripcion = LeerTexto("Descripción: ");
+            double peso = LeerNumero("Peso en kg: ");
+            double valor = LeerNumero("Valor declarado: Q");
+            string origen = LeerTexto("Dirección de origen: ");
+            string destino = LeerTexto("Dirección de destino: ");
+
+            Paquete paquete = null;
+            bool datosbuenos = false;
+
+            if (tipo == "1")
+            {
+                Documento documento = new Documento(codigo, descripcion, peso, valor, origen, destino);
+                datosbuenos = documento.ValidarDatos();
+                paquete = documento;
+            }
+            else if (tipo == "2")
+            {
+                PaqueteEstandar estandar = new PaqueteEstandar(codigo, descripcion, peso, valor, origen, destino);
+                datosbuenos = estandar.ValidarDatos();
+                paquete = estandar;
+            }
+            else if (tipo == "3")
+            {
+                PaqueteFragil fragil = new PaqueteFragil(codigo, descripcion, peso, valor, origen, destino);
+                datosbuenos = fragil.ValidarDatos();
+                paquete = fragil;
+            }
+            else
+            {
+                double temperatura = LeerNumero("Temperatura máxima en grados: ");
+                ProductoRefrigerado refrigerado = new ProductoRefrigerado(codigo, descripcion, peso, valor, origen, destino, temperatura);
+                datosbuenos = refrigerado.ValidarDatos();
+                paquete = refrigerado;
+            }
+
+            if (datosbuenos == false)
+            {
+                MostrarError("No se pudo registrar el paquete.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.AgregarPaquete(paquete) == true)
+            {
+                MostrarExito("Paquete " + codigo + " registrado. Tarifa a 10 km: Q" + sistema.CalcularTarifaDelPaquete(paquete, 10));
+            }
+            else
+            {
+                MostrarError("No se pudo registrar el paquete.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarPaquete()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código del paquete: ");
+            Paquete paquete = sistema.BuscarPaquete(codigo);
+
+            if (paquete == null)
+            {
+                MostrarError("No existe el paquete " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                paquete.MostrarInformacionPaquete();
+                Console.WriteLine("Tarifa a 10 km: Q" + sistema.CalcularTarifaDelPaquete(paquete, 10));
+            }
+
+            Pausa();
+        }
+
+        static void ListarPaquetes()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Paquetes registrados: " + sistema.Paquetes.Count);
+            Console.WriteLine();
+
+            if (sistema.Paquetes.Count == 0)
+            {
+                Console.WriteLine("Todavía no hay paquetes.");
+            }
+
+            for (int i = 0; i < sistema.Paquetes.Count; i++)
+            {
+                Paquete paquete = sistema.Paquetes[i];
+                Console.WriteLine(paquete.Codigo + "   " + paquete.Descripcion + "   " + paquete.Peso + " kg   Q" + paquete.Valordeclarado + "   " + paquete.Estado);
+            }
+
+            Pausa();
+        }
+
+        static void MenuEntregas()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("ENTREGAS");
+                Console.WriteLine();
+                Console.WriteLine("1. Crear solicitud de entrega");
+                Console.WriteLine("2. Asignar repartidor y vehículo");
+                Console.WriteLine("3. Consultar entrega");
+                Console.WriteLine("4. Listar todas");
+                Console.WriteLine("5. Listar solo las activas");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    CrearSolicitudDeEntrega();
+                }
+                else if (opcion == "2")
+                {
+                    AsignarRepartidorYVehiculo();
+                }
+                else if (opcion == "3")
+                {
+                    ConsultarEntrega();
+                }
+                else if (opcion == "4")
+                {
+                    ListarEntregas(false);
+                }
+                else if (opcion == "5")
+                {
+                    ListarEntregas(true);
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void CrearSolicitudDeEntrega()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Crear solicitud de entrega");
+            Console.WriteLine();
+
+            if (sistema.Clientes.Count == 0)
+            {
+                MostrarError("Primero hay que registrar un cliente.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.Paquetes.Count == 0)
+            {
+                MostrarError("Primero hay que registrar un paquete.");
+                Pausa();
+                return;
+            }
+
+            string codigocliente = LeerTexto("Código del cliente: ");
+            string codigopaquete = LeerTexto("Código del paquete: ");
+            double distancia = LeerNumero("Distancia estimada en km: ");
+
+            if (distancia > 100)
+            {
+                MostrarError("GoXela solo cubre hasta 100 km a la redonda.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("1. NORMAL");
+            Console.WriteLine("2. PRIORITARIO (25% más)");
+            Console.WriteLine("3. URGENTE (60% más)");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Tipo de servicio: ");
+            string tiposervicio = "NORMAL";
+
+            if (opcion == "2")
+            {
+                tiposervicio = "PRIORITARIO";
+            }
+            else if (opcion == "3")
+            {
+                tiposervicio = "URGENTE";
+            }
+
+            Entrega entrega = sistema.CrearEntrega(codigocliente, codigopaquete, distancia, tiposervicio);
+
+            if (entrega == null)
+            {
+                MostrarError("No se pudo crear la entrega.");
+                Pausa();
+                return;
+            }
+
+            sistema.CalcularTarifa(entrega.Codigo);
+
+            MostrarExito("Entrega " + entrega.Codigo + " creada.");
+            Console.WriteLine("Tarifa base: Q" + entrega.Tarifabase);
+            Console.WriteLine("Recargos   : Q" + entrega.Recargos);
+            Console.WriteLine("Descuentos : Q" + entrega.Descuentos);
+            Console.WriteLine("Total      : Q" + entrega.Total);
+
+            Pausa();
+        }
+
+        static void AsignarRepartidorYVehiculo()
+        {
+            Console.WriteLine();
+            string codigoentrega = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigoentrega);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigoentrega + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Repartidores disponibles:");
+            int cuantos = 0;
+
+            for (int i = 0; i < sistema.Repartidores.Count; i++)
+            {
+                Repartidor repartidor = sistema.Repartidores[i];
+
+                if (repartidor.Estado == "DISPONIBLE")
+                {
+                    Console.WriteLine("   " + repartidor.Codigo + "   " + repartidor.NombreCompleto + "   licencia " + repartidor.Tipolicencia);
+                    cuantos = cuantos + 1;
+                }
+            }
+
+            if (cuantos == 0)
+            {
+                MostrarError("No hay ningún repartidor disponible.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Vehículos disponibles:");
+            cuantos = 0;
+
+            for (int i = 0; i < sistema.Vehiculos.Count; i++)
+            {
+                Vehiculo vehiculo = sistema.Vehiculos[i];
+
+                if (vehiculo.Estado == "DISPONIBLE")
+                {
+                    Console.WriteLine("   " + vehiculo.MyCodigo + "   " + vehiculo.MyMarca + " " + vehiculo.MyModelo + "   " + vehiculo.Mycargamaxima + " kg   pide licencia " + vehiculo.MytipoLicencia);
+                    cuantos = cuantos + 1;
+                }
+            }
+
+            if (cuantos == 0)
+            {
+                MostrarError("No hay ningún vehículo disponible.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            string codigorepartidor = LeerTexto("Código del repartidor: ");
+            string codigovehiculo = LeerTexto("Código del vehículo: ");
+
+            if (sistema.AsignarRepartidorYVehiculo(codigoentrega, codigorepartidor, codigovehiculo) == true)
+            {
+                MostrarExito("Entrega " + codigoentrega + " asignada.");
+            }
+            else
+            {
+                MostrarError("No se pudo asignar.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                entrega.MostrarInformacionEntrega();
+            }
+
+            Pausa();
+        }
+
+        static void ListarEntregas(bool soloactivas)
+        {
+            Console.WriteLine();
+
+            if (soloactivas == true)
+            {
+                Console.WriteLine("Entregas activas: " + sistema.ContarEntregasActivas());
+            }
+            else
+            {
+                Console.WriteLine("Entregas registradas: " + sistema.Entregas.Count);
+            }
+
+            Console.WriteLine();
+
+            for (int i = 0; i < sistema.Entregas.Count; i++)
+            {
+                Entrega entrega = sistema.Entregas[i];
+                bool lamuestro = true;
+
+                if (soloactivas == true && entrega.EstaActiva() == false)
+                {
+                    lamuestro = false;
+                }
+
+                if (lamuestro == true)
+                {
+                    string nombrerepartidor = "sin asignar";
+
+                    if (entrega.Repartidor != null)
+                    {
+                        nombrerepartidor = entrega.Repartidor.NombreCompleto;
+                    }
+
+                    Console.WriteLine(entrega.Codigo + "   " + entrega.Cliente.NombreCompleto + "   " + entrega.Paquete.Codigo + "   " + entrega.Tiposervicio + "   Q" + entrega.Total + "   " + entrega.Estado + "   " + nombrerepartidor);
+                }
             }
 
             Pausa();
