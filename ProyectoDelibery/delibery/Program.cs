@@ -2189,7 +2189,11 @@ namespace delibery
                 {
                     MenuEntregas();
                 }
-                else if (opcion == "6" || opcion == "7")
+                else if (opcion == "6")
+                {
+                    MenuIncidencias();
+                }
+                else if (opcion == "7")
                 {
                     MostrarError("Esa parte todavía no está lista.");
                     Pausa();
@@ -2936,6 +2940,12 @@ namespace delibery
                 Console.WriteLine("3. Consultar entrega");
                 Console.WriteLine("4. Listar todas");
                 Console.WriteLine("5. Listar solo las activas");
+                Console.WriteLine("6. Cambiar estado");
+                Console.WriteLine("7. Confirmar entrega");
+                Console.WriteLine("8. Cancelar entrega");
+                Console.WriteLine("9. Reprogramar entrega");
+                Console.WriteLine("10. Calificar entrega");
+                Console.WriteLine("11. Recalcular tarifa");
                 Console.WriteLine("0. Regresar");
                 Console.WriteLine();
 
@@ -2960,6 +2970,30 @@ namespace delibery
                 else if (opcion == "5")
                 {
                     ListarEntregas(true);
+                }
+                else if (opcion == "6")
+                {
+                    ActualizarEstadoDeEntrega();
+                }
+                else if (opcion == "7")
+                {
+                    ConfirmarEntrega();
+                }
+                else if (opcion == "8")
+                {
+                    CancelarEntrega();
+                }
+                else if (opcion == "9")
+                {
+                    ReprogramarEntrega();
+                }
+                else if (opcion == "10")
+                {
+                    CalificarEntrega();
+                }
+                else if (opcion == "11")
+                {
+                    RecalcularTarifa();
                 }
                 else if (opcion == "0")
                 {
@@ -3169,6 +3203,465 @@ namespace delibery
 
                     Console.WriteLine(entrega.Codigo + "   " + entrega.Cliente.NombreCompleto + "   " + entrega.Paquete.Codigo + "   " + entrega.Tiposervicio + "   Q" + entrega.Total + "   " + entrega.Estado + "   " + nombrerepartidor);
                 }
+            }
+
+            Pausa();
+        }
+
+        static void ActualizarEstadoDeEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (entrega.EstaFinalizada() == true)
+            {
+                MostrarError("La entrega ya está " + entrega.Estado + " y no se puede mover.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Estado actual: " + entrega.Estado);
+            Console.WriteLine();
+            Console.WriteLine("1. RECOGIDA");
+            Console.WriteLine("2. EN RUTA");
+            Console.WriteLine("3. CON INCIDENCIA");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Nuevo estado: ");
+            string nuevo = "";
+
+            if (opcion == "1")
+            {
+                nuevo = "RECOGIDA";
+            }
+            else if (opcion == "2")
+            {
+                nuevo = "EN RUTA";
+            }
+            else if (opcion == "3")
+            {
+                nuevo = "CON INCIDENCIA";
+            }
+            else
+            {
+                MostrarError("Opción no válida.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CambiarEstadoEntrega(codigo, nuevo) == true)
+            {
+                MostrarExito("La entrega quedó en " + entrega.Estado + ".");
+            }
+
+            Pausa();
+        }
+
+        static void ConfirmarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CambiarEstadoEntrega(codigo, "ENTREGADA") == true)
+            {
+                MostrarExito("Entrega " + codigo + " confirmada. Se cobró Q" + entrega.Total);
+                Console.WriteLine("El paquete quedó ENTREGADO y el repartidor y el vehículo volvieron a estar disponibles.");
+            }
+
+            Pausa();
+        }
+
+        static void CancelarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            entrega.MostrarInformacionEntrega();
+            Console.WriteLine();
+
+            string respuesta = LeerTexto("¿Seguro que la quiere cancelar? (s/n): ");
+
+            if (respuesta.ToLower() != "s")
+            {
+                Console.WriteLine();
+                Console.WriteLine("No se canceló nada.");
+                Pausa();
+                return;
+            }
+
+            if (sistema.CancelarEntrega(codigo) == true)
+            {
+                MostrarExito("Entrega " + codigo + " cancelada. El paquete quedó libre otra vez.");
+            }
+
+            Pausa();
+        }
+
+        static void ReprogramarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            if (sistema.ReprogramarEntrega(codigo) == true)
+            {
+                MostrarExito("Entrega " + codigo + " reprogramada.");
+                Console.WriteLine("Quedó sin repartidor ni vehículo, hay que asignarla de nuevo.");
+            }
+
+            Pausa();
+        }
+
+        static void CalificarEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            double nota = LeerNumero("Calificación del 1 al 5: ");
+
+            if (sistema.CalificarEntrega(codigo, nota) == true)
+            {
+                MostrarExito("Gracias por calificar.");
+
+                if (entrega.Repartidor != null)
+                {
+                    Console.WriteLine("El promedio de " + entrega.Repartidor.NombreCompleto + " quedó en " + entrega.Repartidor.Calificacion);
+                }
+            }
+
+            Pausa();
+        }
+
+        static void RecalcularTarifa()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Distancia actual: " + entrega.Distanciaestimada + " km");
+            double distancia = LeerNumero("Distancia nueva en km: ");
+
+            if (distancia <= 0 || distancia > 100)
+            {
+                MostrarError("La distancia debe estar entre 1 y 100 km.");
+                Pausa();
+                return;
+            }
+
+            entrega.Distanciaestimada = distancia;
+
+            if (sistema.CalcularTarifa(codigo) == true)
+            {
+                MostrarExito("Tarifa recalculada.");
+                Console.WriteLine("Tarifa base: Q" + entrega.Tarifabase);
+                Console.WriteLine("Recargos   : Q" + entrega.Recargos);
+                Console.WriteLine("Descuentos : Q" + entrega.Descuentos);
+                Console.WriteLine("Total      : Q" + entrega.Total);
+            }
+
+            Pausa();
+        }
+
+        static void MenuIncidencias()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("INCIDENCIAS");
+                Console.WriteLine();
+                Console.WriteLine("1. Registrar incidencia");
+                Console.WriteLine("2. Cerrar incidencia");
+                Console.WriteLine("3. Consultar incidencia");
+                Console.WriteLine("4. Listar todas");
+                Console.WriteLine("5. Listar solo las abiertas");
+                Console.WriteLine("6. Ver las de una entrega");
+                Console.WriteLine("0. Regresar");
+                Console.WriteLine();
+
+                string opcion = LeerTexto("Opción: ");
+
+                if (opcion == "1")
+                {
+                    RegistrarIncidencia();
+                }
+                else if (opcion == "2")
+                {
+                    CerrarIncidencia();
+                }
+                else if (opcion == "3")
+                {
+                    ConsultarIncidencia();
+                }
+                else if (opcion == "4")
+                {
+                    ListarIncidencias(false);
+                }
+                else if (opcion == "5")
+                {
+                    ListarIncidencias(true);
+                }
+                else if (opcion == "6")
+                {
+                    VerIncidenciasDeEntrega();
+                }
+                else if (opcion == "0")
+                {
+                    return;
+                }
+                else
+                {
+                    MostrarError("Opción no válida.");
+                }
+            }
+        }
+
+        static void RegistrarIncidencia()
+        {
+            Console.WriteLine();
+            string codigoentrega = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigoentrega);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigoentrega + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("1. CLIENTE AUSENTE");
+            Console.WriteLine("2. DIRECCION INCORRECTA");
+            Console.WriteLine("3. PAQUETE DANADO");
+            Console.WriteLine("4. VEHICULO AVERIADO");
+            Console.WriteLine("5. RETRASO");
+            Console.WriteLine("6. CLIMA");
+            Console.WriteLine("7. RECHAZO");
+            Console.WriteLine();
+
+            string opcion = LeerTexto("Tipo: ");
+            string tipo = "";
+
+            if (opcion == "1")
+            {
+                tipo = "CLIENTE AUSENTE";
+            }
+            else if (opcion == "2")
+            {
+                tipo = "DIRECCION INCORRECTA";
+            }
+            else if (opcion == "3")
+            {
+                tipo = "PAQUETE DANADO";
+            }
+            else if (opcion == "4")
+            {
+                tipo = "VEHICULO AVERIADO";
+            }
+            else if (opcion == "5")
+            {
+                tipo = "RETRASO";
+            }
+            else if (opcion == "6")
+            {
+                tipo = "CLIMA";
+            }
+            else if (opcion == "7")
+            {
+                tipo = "RECHAZO";
+            }
+            else
+            {
+                MostrarError("Opción no válida.");
+                Pausa();
+                return;
+            }
+
+            string descripcion = LeerTexto("Qué pasó: ");
+            string accion = LeerTextoOpcional("Qué se hizo (vacío si todavía no se resuelve): ");
+
+            Incidencia incidencia = null;
+
+            if (accion == "")
+            {
+                incidencia = sistema.RegistrarIncidencia(codigoentrega, tipo, descripcion);
+            }
+            else
+            {
+                incidencia = sistema.RegistrarIncidencia(codigoentrega, tipo, descripcion, accion);
+            }
+
+            if (incidencia == null)
+            {
+                MostrarError("No se pudo registrar la incidencia.");
+            }
+            else
+            {
+                MostrarExito("Incidencia " + incidencia.Codigo + " registrada.");
+                Console.WriteLine("La entrega " + codigoentrega + " quedó en " + entrega.Estado + ".");
+            }
+
+            Pausa();
+        }
+
+        static void CerrarIncidencia()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la incidencia: ");
+            Incidencia incidencia = sistema.BuscarIncidencia(codigo);
+
+            if (incidencia == null)
+            {
+                MostrarError("No existe la incidencia " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            incidencia.MostrarInformacionIncidencia();
+            Console.WriteLine();
+
+            string accion = LeerTexto("Qué se hizo para resolverla: ");
+
+            if (sistema.CerrarIncidencia(codigo, accion) == true)
+            {
+                MostrarExito("Incidencia " + codigo + " cerrada.");
+                Console.WriteLine("Ojo: la entrega sigue en CON INCIDENCIA. Hay que moverla desde el menú de entregas.");
+            }
+
+            Pausa();
+        }
+
+        static void ConsultarIncidencia()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la incidencia: ");
+            Incidencia incidencia = sistema.BuscarIncidencia(codigo);
+
+            if (incidencia == null)
+            {
+                MostrarError("No existe la incidencia " + codigo + ".");
+            }
+            else
+            {
+                Console.WriteLine();
+                incidencia.MostrarInformacionIncidencia();
+            }
+
+            Pausa();
+        }
+
+        static void ListarIncidencias(bool soloabiertas)
+        {
+            Console.WriteLine();
+
+            if (soloabiertas == true)
+            {
+                Console.WriteLine("Incidencias abiertas:");
+            }
+            else
+            {
+                Console.WriteLine("Incidencias registradas: " + sistema.Incidencias.Count);
+            }
+
+            Console.WriteLine();
+
+            int cuantas = 0;
+
+            for (int i = 0; i < sistema.Incidencias.Count; i++)
+            {
+                Incidencia incidencia = sistema.Incidencias[i];
+                bool lamuestro = true;
+
+                if (soloabiertas == true && incidencia.Estado != "ABIERTA")
+                {
+                    lamuestro = false;
+                }
+
+                if (lamuestro == true)
+                {
+                    Console.WriteLine(incidencia.Codigo + "   " + incidencia.Codigoentrega + "   " + incidencia.Tipo + "   " + incidencia.Estado);
+                    cuantas = cuantas + 1;
+                }
+            }
+
+            if (cuantas == 0)
+            {
+                Console.WriteLine("No hay nada que mostrar.");
+            }
+
+            Pausa();
+        }
+
+        static void VerIncidenciasDeEntrega()
+        {
+            Console.WriteLine();
+            string codigo = LeerTexto("Código de la entrega: ");
+            Entrega entrega = sistema.BuscarEntrega(codigo);
+
+            if (entrega == null)
+            {
+                MostrarError("No existe la entrega " + codigo + ".");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("La entrega " + codigo + " tiene " + entrega.Incidencias.Count + " incidencia(s).");
+            Console.WriteLine();
+
+            for (int i = 0; i < entrega.Incidencias.Count; i++)
+            {
+                entrega.Incidencias[i].MostrarInformacionIncidencia();
+                Console.WriteLine();
             }
 
             Pausa();
