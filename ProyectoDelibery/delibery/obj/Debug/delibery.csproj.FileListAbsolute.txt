@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe.config
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.pdb
@@ -5,3 +6,12 @@ C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\De
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.csproj.CoreCompileInputs.cache
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.exe
 C:\PROYECTO GO XELA 2026\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.pdb
+=======
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe.config
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.pdb
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.csproj.AssemblyReference.cache
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.csproj.CoreCompileInputs.cache
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.exe
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.pdb
+>>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7

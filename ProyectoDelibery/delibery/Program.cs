@@ -4223,6 +4223,7 @@ namespace delibery
                             ReporteEntregasActivas();
                             break;
 
+<<<<<<< HEAD
                         case "2":
                             ReporteEntregasFinalizadas();
                             break;
@@ -4242,6 +4243,47 @@ namespace delibery
                         case "6":
                             ReporteRepartidorConMasEntregas();
                             break;
+=======
+                    case "2":
+                        ReporteEntregasFinalizadas();
+                        break;
+
+                    case "3":
+                        ReporteEntregasCanceladas();
+                        break;
+
+                    case "4":
+                        ReporteEntregasConIncidencias();
+                        break;
+
+                    case "5":
+                        ReporteRepartidoresDisponibles();
+                        break;
+
+                    case "6":
+                        ReporteRepartidorConMasEntregas();
+                        break;
+
+                    case "7":
+                        ReporteVehiculoMasUtilizado();
+                        break;
+
+                    case "8":
+                        ReportePaquetesPorTipo();
+                        break;
+
+                    case "9":
+                        ReporteTotalDeIngresos();
+                        break;
+
+                    case "10":
+                        ReporteEntregaDeMayorCosto();
+                        break;
+
+                    case "11":
+                        ReporteTodos();
+                        break;
+>>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7
 
                         case "7":
                             ReporteVehiculoMasUtilizado();
