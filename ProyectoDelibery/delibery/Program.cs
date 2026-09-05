@@ -8,7 +8,7 @@ namespace delibery
 {
     internal class Program
     {
-        public class Persona
+        public abstract class Persona
         {
             private string codigo;
 
@@ -40,14 +40,16 @@ namespace delibery
                 Telefono = telefono;
             }
 
-            public void MostrarInformacion()
+            public abstract string Tipo();
+
+            public virtual void MostrarInformacion()
             {
                 Console.WriteLine("Código: " + Codigo);
                 Console.WriteLine("Nombre completo: " + NombreCompleto);
                 Console.WriteLine("Teléfono: " + Telefono);
             }
 
-            public bool ValidarDatos()
+            public virtual bool ValidarDatos()
             {
                 if (string.IsNullOrWhiteSpace(Codigo))
                 {
@@ -114,18 +116,28 @@ namespace delibery
                 Cantidad = cantidad;
             }
 
-            public void MostrarInformacionCliente()
+            public override string Tipo()
             {
-                MostrarInformacion();
+                return "CLIENTE";
+            }
+
+            public override void MostrarInformacion()
+            {
+                base.MostrarInformacion();
                 Console.WriteLine("Correo: " + Correo);
                 Console.WriteLine("Dirección: " + Direccion);
                 Console.WriteLine("Cantidad: " + Cantidad);
+            }
+
+            public void MostrarInformacionCliente()
+            {
+                MostrarInformacion();
             }
             public void incrementarSolicitud()
             {
                 Cantidad++;
             }
-            public new bool ValidarDatos()
+            public override bool ValidarDatos()
             {
                 if (!base.ValidarDatos())
                 {
@@ -211,9 +223,14 @@ namespace delibery
                 Calificacion = 0;
             }
 
-            public void MostrarInformacionRepartidor()
+            public override string Tipo()
             {
-                MostrarInformacion();
+                return "REPARTIDOR";
+            }
+
+            public override void MostrarInformacion()
+            {
+                base.MostrarInformacion();
                 Console.WriteLine("Número de licencia: " + Nummerolicencia);
                 Console.WriteLine("Tipo de licencia: " + Tipolicencia);
                 Console.WriteLine("Estado: " + Estado);
@@ -221,12 +238,17 @@ namespace delibery
                 Console.WriteLine("Calificación: " + Calificacion);
             }
 
+            public void MostrarInformacionRepartidor()
+            {
+                MostrarInformacion();
+            }
+
             public void incrementarEntrega()
             {
                 Entregasrealizadas++;
             }
 
-            public new bool ValidarDatos()
+            public override bool ValidarDatos()
             {
                 if (!base.ValidarDatos())
                 {
@@ -290,7 +312,7 @@ namespace delibery
             }
 
         }
-        class Vehiculo
+        abstract class Vehiculo
         {
             private String codigo;
 
@@ -353,6 +375,23 @@ namespace delibery
                 MytipoLicencia = tipoLicencia;
             }
 
+            public abstract string Tipo();
+
+            public abstract string LicenciaRequerida();
+
+            public abstract double CalcularCostoOperativo(double distanciaKm);
+
+            public virtual bool PuedeTransportar(Paquete paquete)
+            {
+                if (paquete.Peso > Mycargamaxima)
+                {
+                    Console.WriteLine("El vehículo soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                return true;
+            }
+
             private string estado = "DISPONIBLE";
             public string Estado
             {
@@ -360,7 +399,7 @@ namespace delibery
                 set { estado = value; }
             }
 
-            public void MostrarInformacionVehiculo()
+            public virtual void MostrarInformacionVehiculo()
             {
                 Console.WriteLine("Código: " + MyCodigo);
                 Console.WriteLine("Placa: " + MyPlaca);
@@ -372,7 +411,7 @@ namespace delibery
                 Console.WriteLine("Estado: " + Estado);
             }
 
-            public bool ValidarDatos()
+            public virtual bool ValidarDatos()
             {
                 if (string.IsNullOrWhiteSpace(MyCodigo))
                 {
@@ -437,26 +476,37 @@ namespace delibery
 
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "BICICLETA";
             }
 
-            public string LicenciaRequerida()
+            public override string LicenciaRequerida()
             {
                 return "NINGUNA";
             }
 
-            public double CalcularCostoOperativo(double distanciaKm)
+            public override double CalcularCostoOperativo(double distanciaKm)
             {
                 return MycostoOperativo * distanciaKm;
             }
 
-            public bool PuedeTransportar(Paquete paquete)
+            public override bool PuedeTransportar(Paquete paquete)
             {
-                if (paquete.Peso > Mycargamaxima)
+                if (base.PuedeTransportar(paquete) == false)
                 {
-                    Console.WriteLine("La bicicleta soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                if (paquete.NecesitaRefrigeracion() == true)
+                {
+                    Console.WriteLine("La bicicleta no tiene equipo de refrigeración.");
+                    return false;
+                }
+
+                if (paquete.EsFragil() == true && paquete.Peso > 5)
+                {
+                    Console.WriteLine("Un paquete frágil de más de 5 kg no viaja seguro en bicicleta.");
                     return false;
                 }
 
@@ -467,23 +517,6 @@ namespace delibery
                 }
 
                 return true;
-            }
-
-            public bool PuedeTransportar(PaqueteFragil paquete)
-            {
-                if (paquete.Peso > 5)
-                {
-                    Console.WriteLine("Un paquete frágil de más de 5 kg no viaja seguro en bicicleta.");
-                    return false;
-                }
-
-                return PuedeTransportar((Paquete)paquete);
-            }
-
-            public bool PuedeTransportar(ProductoRefrigerado paquete)
-            {
-                Console.WriteLine("La bicicleta no tiene equipo de refrigeración.");
-                return false;
             }
         }
         class Motocicleta : Vehiculo
@@ -501,26 +534,31 @@ namespace delibery
                 set { tienecajatermica = value; }
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "MOTOCICLETA";
             }
 
-            public string LicenciaRequerida()
+            public override string LicenciaRequerida()
             {
                 return "M";
             }
 
-            public double CalcularCostoOperativo(double distanciaKm)
+            public override double CalcularCostoOperativo(double distanciaKm)
             {
                 return (MycostoOperativo * distanciaKm) + 5.00;
             }
 
-            public bool PuedeTransportar(Paquete paquete)
+            public override bool PuedeTransportar(Paquete paquete)
             {
-                if (paquete.Peso > Mycargamaxima)
+                if (base.PuedeTransportar(paquete) == false)
                 {
-                    Console.WriteLine("La motocicleta soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                if (paquete.NecesitaRefrigeracion() == true && Tienecajatermica == false)
+                {
+                    Console.WriteLine("Esta motocicleta no tiene caja térmica para llevar refrigerados.");
                     return false;
                 }
 
@@ -531,17 +569,6 @@ namespace delibery
                 }
 
                 return true;
-            }
-
-            public bool PuedeTransportar(ProductoRefrigerado paquete)
-            {
-                if (Tienecajatermica == false)
-                {
-                    Console.WriteLine("Esta motocicleta no tiene caja térmica.");
-                    return false;
-                }
-
-                return PuedeTransportar((Paquete)paquete);
             }
         }
         class automovil : Vehiculo
@@ -559,33 +586,38 @@ namespace delibery
                 set { numerodepuertas = value; }
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "AUTOMOVIL";
             }
 
-            public string LicenciaRequerida()
+            public override string LicenciaRequerida()
             {
                 return "A o B";
             }
 
-            public double CalcularCostoOperativo(double distanciaKm)
+            public override double CalcularCostoOperativo(double distanciaKm)
             {
                 return (MycostoOperativo * distanciaKm) + 12.00;
             }
 
-            public bool PuedeTransportar(Paquete paquete)
+            public override bool PuedeTransportar(Paquete paquete)
             {
-                if (paquete.Peso > Mycargamaxima)
+                if (base.PuedeTransportar(paquete) == false)
                 {
-                    Console.WriteLine("El automóvil soporta " + Mycargamaxima + " kg y el paquete pesa " + paquete.Peso + " kg.");
+                    return false;
+                }
+
+                if (paquete.NecesitaRefrigeracion() == true)
+                {
+                    Console.WriteLine("El automóvil no tiene equipo de refrigeración.");
                     return false;
                 }
 
                 return true;
             }
         }
-        public class Paquete
+        public abstract class Paquete
         {
             private string codigo;
             public string Codigo
@@ -646,7 +678,26 @@ namespace delibery
                 Direcciondestino = direcciondestino;
             }
 
-            public void MostrarInformacionPaquete()
+            public abstract string Tipo();
+
+            public abstract double CalcularTarifaBase(double distanciaKm);
+
+            public virtual bool EsFragil()
+            {
+                return false;
+            }
+
+            public virtual bool NecesitaRefrigeracion()
+            {
+                return false;
+            }
+
+            public virtual string CondicionesTransporte()
+            {
+                return "Sin condiciones especiales.";
+            }
+
+            public virtual void MostrarInformacionPaquete()
             {
                 Console.WriteLine("Código: " + Codigo);
                 Console.WriteLine("Descripción: " + Descripcion);
@@ -657,7 +708,7 @@ namespace delibery
                 Console.WriteLine("Estado: " + Estado);
             }
 
-            public bool ValidarDatos()
+            public virtual bool ValidarDatos()
             {
                 if (string.IsNullOrWhiteSpace(Codigo))
                 {
@@ -719,22 +770,22 @@ namespace delibery
 
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "DOCUMENTO";
             }
 
-            public double CalcularTarifaBase(double distanciaKm)
+            public override double CalcularTarifaBase(double distanciaKm)
             {
                 return 8.00 + (2.50 * distanciaKm);
             }
 
-            public string CondicionesTransporte()
+            public override string CondicionesTransporte()
             {
                 return "Debe viajar en sobre cerrado y protegido de la lluvia.";
             }
 
-            public new bool ValidarDatos()
+            public override bool ValidarDatos()
             {
                 if (!base.ValidarDatos())
                 {
@@ -759,17 +810,17 @@ namespace delibery
 
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "ESTANDAR";
             }
 
-            public double CalcularTarifaBase(double distanciaKm)
+            public override double CalcularTarifaBase(double distanciaKm)
             {
                 return 10.00 + (3.50 * distanciaKm) + (2.00 * Peso);
             }
 
-            public string CondicionesTransporte()
+            public override string CondicionesTransporte()
             {
                 return "Sin condiciones especiales.";
             }
@@ -782,23 +833,23 @@ namespace delibery
 
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "FRAGIL";
             }
 
-            public bool EsFragil()
+            public override bool EsFragil()
             {
                 return true;
             }
 
-            public double CalcularTarifaBase(double distanciaKm)
+            public override double CalcularTarifaBase(double distanciaKm)
             {
                 double normal = 10.00 + (3.50 * distanciaKm) + (2.00 * Peso);
                 return (normal * 1.35) + 15.00;
             }
 
-            public string CondicionesTransporte()
+            public override string CondicionesTransporte()
             {
                 return "Embalaje con burbuja, no apilar y manejar con cuidado.";
             }
@@ -818,28 +869,28 @@ namespace delibery
                 Temperaturamaxima = temperaturamaxima;
             }
 
-            public string Tipo()
+            public override string Tipo()
             {
                 return "REFRIGERADO";
             }
 
-            public bool NecesitaRefrigeracion()
+            public override bool NecesitaRefrigeracion()
             {
                 return true;
             }
 
-            public double CalcularTarifaBase(double distanciaKm)
+            public override double CalcularTarifaBase(double distanciaKm)
             {
                 double normal = 10.00 + (3.50 * distanciaKm) + (2.50 * Peso);
                 return normal + 25.00 + (1.50 * distanciaKm);
             }
 
-            public string CondicionesTransporte()
+            public override string CondicionesTransporte()
             {
                 return "Cadena de frío a " + Temperaturamaxima + " grados o menos, entrega inmediata.";
             }
 
-            public new bool ValidarDatos()
+            public override bool ValidarDatos()
             {
                 if (!base.ValidarDatos())
                 {
@@ -2038,31 +2089,7 @@ namespace delibery
 
             public double CalcularTarifaDelPaquete(Paquete paquete, double distancia)
             {
-                if (paquete is Documento)
-                {
-                    Documento documento = (Documento)paquete;
-                    return documento.CalcularTarifaBase(distancia);
-                }
-
-                if (paquete is PaqueteFragil)
-                {
-                    PaqueteFragil fragil = (PaqueteFragil)paquete;
-                    return fragil.CalcularTarifaBase(distancia);
-                }
-
-                if (paquete is ProductoRefrigerado)
-                {
-                    ProductoRefrigerado refrigerado = (ProductoRefrigerado)paquete;
-                    return refrigerado.CalcularTarifaBase(distancia);
-                }
-
-                if (paquete is PaqueteEstandar)
-                {
-                    PaqueteEstandar estandar = (PaqueteEstandar)paquete;
-                    return estandar.CalcularTarifaBase(distancia);
-                }
-
-                return 0;
+                return paquete.CalcularTarifaBase(distancia);
             }
 
             public bool CalcularTarifa(string codigoentrega)
@@ -2129,10 +2156,13 @@ namespace delibery
 
         static string LeerTexto(string mensaje)
         {
-            while (true)
+            string texto = "";
+            bool valido = false;
+
+            do
             {
                 Console.Write(mensaje);
-                string texto = Console.ReadLine();
+                texto = Console.ReadLine();
 
                 if (texto != null)
                 {
@@ -2141,11 +2171,16 @@ namespace delibery
 
                 if (string.IsNullOrWhiteSpace(texto) == false)
                 {
-                    return texto;
+                    valido = true;
+                }
+                else
+                {
+                    MostrarError("Este dato no puede quedar vacío.");
                 }
 
-                MostrarError("Este dato no puede quedar vacío.");
-            }
+            } while (valido == false);
+
+            return texto;
         }
 
         static string LeerTextoOpcional(string mensaje)
@@ -2163,7 +2198,10 @@ namespace delibery
 
         static double LeerNumero(string mensaje)
         {
-            while (true)
+            double numero = 0;
+            bool valido = false;
+
+            do
             {
                 Console.Write(mensaje);
                 string texto = Console.ReadLine();
@@ -2173,161 +2211,219 @@ namespace delibery
                     texto = texto.Trim().Replace(",", ".");
                 }
 
-                double numero;
-
                 if (double.TryParse(texto, out numero) == true)
                 {
-                    return numero;
+                    valido = true;
+                }
+                else
+                {
+                    MostrarError("Eso no es un número. Intente de nuevo.");
                 }
 
-                MostrarError("Eso no es un número. Intente de nuevo.");
-            }
+            } while (valido == false);
+
+            return numero;
+        }
+
+        static double LeerNumeroEnRango(string mensaje, double minimo, double maximo)
+        {
+            double numero = 0;
+            bool valido = false;
+
+            do
+            {
+                numero = LeerNumero(mensaje);
+
+                if (numero < minimo || numero > maximo)
+                {
+                    MostrarError("Tiene que ser un número entre " + minimo + " y " + maximo + ".");
+                }
+                else
+                {
+                    valido = true;
+                }
+
+            } while (valido == false);
+
+            return numero;
+        }
+
+        static string LeerOpcion(string mensaje, string opcionesvalidas)
+        {
+            string opcion = "";
+            bool valido = false;
+
+            do
+            {
+                opcion = LeerTexto(mensaje).ToUpper();
+
+                if (opcionesvalidas.Contains("|" + opcion + "|") == true)
+                {
+                    valido = true;
+                }
+                else
+                {
+                    MostrarError("Solo se acepta: " + opcionesvalidas.Replace("|", " ").Trim() + ".");
+                }
+
+            } while (valido == false);
+
+            return opcion;
         }
 
         static void MenuPrincipal()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("GOXELA DELIVERY");
-                Console.WriteLine();
-                Console.WriteLine("1. Clientes");
-                Console.WriteLine("2. Repartidores");
-                Console.WriteLine("3. Vehículos");
-                Console.WriteLine("4. Paquetes");
-                Console.WriteLine("5. Entregas");
-                Console.WriteLine("6. Incidencias");
-                Console.WriteLine("7. Reportes");
-                Console.WriteLine("0. Salir");
-                Console.WriteLine();
+                Console.WriteLine("========================================");
+                Console.WriteLine("             GOXELA DELIVERY            ");
+                Console.WriteLine("========================================");
+                Console.WriteLine(" 1. Gestion de clientes");
+                Console.WriteLine(" 2. Gestion de repartidores");
+                Console.WriteLine(" 3. Gestion de vehiculos");
+                Console.WriteLine(" 4. Gestion de paquetes");
+                Console.WriteLine(" 5. Gestion de entregas");
+                Console.WriteLine(" 6. Gestion de incidencias");
+                Console.WriteLine(" 7. Reportes");
+                Console.WriteLine(" 8. Salir");
+                Console.WriteLine("========================================");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    MenuClientes();
+                    case "1":
+                        MenuClientes();
+                        break;
+
+                    case "2":
+                        MenuRepartidores();
+                        break;
+
+                    case "3":
+                        MenuVehiculos();
+                        break;
+
+                    case "4":
+                        MenuPaquetes();
+                        break;
+
+                    case "5":
+                        MenuEntregas();
+                        break;
+
+                    case "6":
+                        MenuIncidencias();
+                        break;
+
+                    case "7":
+                        MenuReportes();
+                        break;
+
+                    case "8":
+                        Console.WriteLine();
+                        Console.WriteLine("Gracias por usar GoXela Delivery.");
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "0")
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("Gracias por usar GoXela Delivery.");
-                    return;
-                }
-                else if (opcion == "2")
-                {
-                    MenuRepartidores();
-                }
-                else if (opcion == "3")
-                {
-                    MenuVehiculos();
-                }
-                else if (opcion == "4")
-                {
-                    MenuPaquetes();
-                }
-                else if (opcion == "5")
-                {
-                    MenuEntregas();
-                }
-                else if (opcion == "6")
-                {
-                    MenuIncidencias();
-                }
-                else if (opcion == "7")
-                {
-                    MenuReportes();
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "8");
         }
 
         static void MenuClientes()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("CLIENTES");
-                Console.WriteLine();
-                Console.WriteLine("1. Registrar cliente");
-                Console.WriteLine("2. Consultar cliente");
-                Console.WriteLine("3. Listar clientes");
-                Console.WriteLine("4. Actualizar cliente");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("---------- GESTION DE CLIENTES ----------");
+                Console.WriteLine("1. Registrar un cliente");
+                Console.WriteLine("2. Consultar un cliente por codigo");
+                Console.WriteLine("3. Listar todos los clientes");
+                Console.WriteLine("4. Actualizar los datos de un cliente");
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    RegistrarCliente();
+                    case "1":
+                        RegistrarCliente();
+                        break;
+
+                    case "2":
+                        ConsultarCliente();
+                        break;
+
+                    case "3":
+                        ListarClientes();
+                        break;
+
+                    case "4":
+                        ActualizarCliente();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    ConsultarCliente();
-                }
-                else if (opcion == "3")
-                {
-                    ListarClientes();
-                }
-                else if (opcion == "4")
-                {
-                    ActualizarCliente();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void MenuRepartidores()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("REPARTIDORES");
-                Console.WriteLine();
-                Console.WriteLine("1. Registrar repartidor");
-                Console.WriteLine("2. Consultar repartidor");
-                Console.WriteLine("3. Listar repartidores");
-                Console.WriteLine("4. Cambiar estado");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("-------- GESTION DE REPARTIDORES --------");
+                Console.WriteLine("1. Registrar un repartidor");
+                Console.WriteLine("2. Consultar un repartidor por codigo");
+                Console.WriteLine("3. Listar todos los repartidores");
+                Console.WriteLine("4. Cambiar el estado de un repartidor");
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    RegistrarRepartidor();
+                    case "1":
+                        RegistrarRepartidor();
+                        break;
+
+                    case "2":
+                        ConsultarRepartidor();
+                        break;
+
+                    case "3":
+                        ListarRepartidores();
+                        break;
+
+                    case "4":
+                        CambiarEstadoRepartidor();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    ConsultarRepartidor();
-                }
-                else if (opcion == "3")
-                {
-                    ListarRepartidores();
-                }
-                else if (opcion == "4")
-                {
-                    CambiarEstadoRepartidor();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void RegistrarRepartidor()
@@ -2576,50 +2672,52 @@ namespace delibery
 
         static void MenuVehiculos()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("VEHICULOS");
-                Console.WriteLine();
-                Console.WriteLine("1. Registrar vehículo");
-                Console.WriteLine("2. Consultar vehículo");
-                Console.WriteLine("3. Listar vehículos");
-                Console.WriteLine("4. Cambiar estado");
-                Console.WriteLine("5. Probar si un repartidor puede manejarlo");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("--------- GESTION DE VEHICULOS ---------");
+                Console.WriteLine("1. Registrar un vehiculo");
+                Console.WriteLine("2. Consultar un vehiculo por codigo");
+                Console.WriteLine("3. Listar todos los vehiculos");
+                Console.WriteLine("4. Cambiar el estado de un vehiculo");
+                Console.WriteLine("5. Probar si un repartidor puede manejar un vehiculo");
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    RegistrarVehiculo();
+                    case "1":
+                        RegistrarVehiculo();
+                        break;
+
+                    case "2":
+                        ConsultarVehiculo();
+                        break;
+
+                    case "3":
+                        ListarVehiculos();
+                        break;
+
+                    case "4":
+                        CambiarEstadoVehiculo();
+                        break;
+
+                    case "5":
+                        ProbarCompatibilidad();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    ConsultarVehiculo();
-                }
-                else if (opcion == "3")
-                {
-                    ListarVehiculos();
-                }
-                else if (opcion == "4")
-                {
-                    CambiarEstadoVehiculo();
-                }
-                else if (opcion == "5")
-                {
-                    ProbarCompatibilidad();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void RegistrarVehiculo()
@@ -2655,8 +2753,8 @@ namespace delibery
 
             string marca = LeerTexto("Marca: ");
             string modelo = LeerTexto("Modelo: ");
-            double carga = LeerNumero("Carga máxima en kg: ");
-            double costo = LeerNumero("Costo por kilómetro: Q");
+            double carga = LeerNumeroEnRango("Carga máxima en kg: ", 1, 5000);
+            double costo = LeerNumeroEnRango("Costo por kilómetro: Q", 0, 1000);
 
             Vehiculo vehiculo = null;
 
@@ -2812,40 +2910,42 @@ namespace delibery
 
         static void MenuPaquetes()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("PAQUETES");
-                Console.WriteLine();
-                Console.WriteLine("1. Registrar paquete");
-                Console.WriteLine("2. Consultar paquete");
-                Console.WriteLine("3. Listar paquetes");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("---------- GESTION DE PAQUETES ----------");
+                Console.WriteLine("1. Registrar un paquete");
+                Console.WriteLine("2. Consultar un paquete por codigo");
+                Console.WriteLine("3. Listar todos los paquetes");
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    RegistrarPaquete();
+                    case "1":
+                        RegistrarPaquete();
+                        break;
+
+                    case "2":
+                        ConsultarPaquete();
+                        break;
+
+                    case "3":
+                        ListarPaquetes();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    ConsultarPaquete();
-                }
-                else if (opcion == "3")
-                {
-                    ListarPaquetes();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void RegistrarPaquete()
@@ -2874,46 +2974,32 @@ namespace delibery
             Console.WriteLine();
 
             string descripcion = LeerTexto("Descripción: ");
-            double peso = LeerNumero("Peso en kg: ");
-            double valor = LeerNumero("Valor declarado: Q");
+            double peso = LeerNumeroEnRango("Peso en kg: ", 0.1, 5000);
+            double valor = LeerNumeroEnRango("Valor declarado: Q", 0, 50000);
             string origen = LeerTexto("Dirección de origen: ");
             string destino = LeerTexto("Dirección de destino: ");
 
             Paquete paquete = null;
-            bool datosbuenos = false;
 
             if (tipo == "1")
             {
-                Documento documento = new Documento(codigo, descripcion, peso, valor, origen, destino);
-                datosbuenos = documento.ValidarDatos();
-                paquete = documento;
+                paquete = new Documento(codigo, descripcion, peso, valor, origen, destino);
             }
             else if (tipo == "2")
             {
-                PaqueteEstandar estandar = new PaqueteEstandar(codigo, descripcion, peso, valor, origen, destino);
-                datosbuenos = estandar.ValidarDatos();
-                paquete = estandar;
+                paquete = new PaqueteEstandar(codigo, descripcion, peso, valor, origen, destino);
             }
             else if (tipo == "3")
             {
-                PaqueteFragil fragil = new PaqueteFragil(codigo, descripcion, peso, valor, origen, destino);
-                datosbuenos = fragil.ValidarDatos();
-                paquete = fragil;
+                paquete = new PaqueteFragil(codigo, descripcion, peso, valor, origen, destino);
             }
             else
             {
-                double temperatura = LeerNumero("Temperatura máxima en grados: ");
-                ProductoRefrigerado refrigerado = new ProductoRefrigerado(codigo, descripcion, peso, valor, origen, destino, temperatura);
-                datosbuenos = refrigerado.ValidarDatos();
-                paquete = refrigerado;
+                double temperatura = LeerNumeroEnRango("Temperatura máxima en grados: ", -30, 15);
+                paquete = new ProductoRefrigerado(codigo, descripcion, peso, valor, origen, destino, temperatura);
             }
 
-            if (datosbuenos == false)
-            {
-                MostrarError("No se pudo registrar el paquete.");
-                Pausa();
-                return;
-            }
+            Console.WriteLine("Condiciones: " + paquete.CondicionesTransporte());
 
             if (sistema.AgregarPaquete(paquete) == true)
             {
@@ -2969,80 +3055,82 @@ namespace delibery
 
         static void MenuEntregas()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("ENTREGAS");
-                Console.WriteLine();
-                Console.WriteLine("1. Crear solicitud de entrega");
-                Console.WriteLine("2. Asignar repartidor y vehículo");
-                Console.WriteLine("3. Consultar entrega");
-                Console.WriteLine("4. Listar todas");
-                Console.WriteLine("5. Listar solo las activas");
-                Console.WriteLine("6. Cambiar estado");
-                Console.WriteLine("7. Confirmar entrega");
-                Console.WriteLine("8. Cancelar entrega");
-                Console.WriteLine("9. Reprogramar entrega");
-                Console.WriteLine("10. Calificar entrega");
-                Console.WriteLine("11. Recalcular tarifa");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("---------- GESTION DE ENTREGAS ----------");
+                Console.WriteLine(" 1. Crear una solicitud de entrega");
+                Console.WriteLine(" 2. Asignar repartidor y vehiculo");
+                Console.WriteLine(" 3. Calcular o recalcular la tarifa");
+                Console.WriteLine(" 4. Actualizar el estado de la entrega");
+                Console.WriteLine(" 5. Confirmar la entrega (marcarla como ENTREGADA)");
+                Console.WriteLine(" 6. Cancelar una entrega");
+                Console.WriteLine(" 7. Reprogramar una entrega");
+                Console.WriteLine(" 8. Calificar una entrega finalizada");
+                Console.WriteLine(" 9. Consultar una entrega por codigo");
+                Console.WriteLine("10. Listar entregas activas");
+                Console.WriteLine("11. Listar todas las entregas");
+                Console.WriteLine(" 0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    CrearSolicitudDeEntrega();
+                    case "1":
+                        CrearSolicitudDeEntrega();
+                        break;
+
+                    case "2":
+                        AsignarRepartidorYVehiculo();
+                        break;
+
+                    case "3":
+                        RecalcularTarifa();
+                        break;
+
+                    case "4":
+                        ActualizarEstadoDeEntrega();
+                        break;
+
+                    case "5":
+                        ConfirmarEntrega();
+                        break;
+
+                    case "6":
+                        CancelarEntrega();
+                        break;
+
+                    case "7":
+                        ReprogramarEntrega();
+                        break;
+
+                    case "8":
+                        CalificarEntrega();
+                        break;
+
+                    case "9":
+                        ConsultarEntrega();
+                        break;
+
+                    case "10":
+                        ListarEntregas(true);
+                        break;
+
+                    case "11":
+                        ListarEntregas(false);
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    AsignarRepartidorYVehiculo();
-                }
-                else if (opcion == "3")
-                {
-                    ConsultarEntrega();
-                }
-                else if (opcion == "4")
-                {
-                    ListarEntregas(false);
-                }
-                else if (opcion == "5")
-                {
-                    ListarEntregas(true);
-                }
-                else if (opcion == "6")
-                {
-                    ActualizarEstadoDeEntrega();
-                }
-                else if (opcion == "7")
-                {
-                    ConfirmarEntrega();
-                }
-                else if (opcion == "8")
-                {
-                    CancelarEntrega();
-                }
-                else if (opcion == "9")
-                {
-                    ReprogramarEntrega();
-                }
-                else if (opcion == "10")
-                {
-                    CalificarEntrega();
-                }
-                else if (opcion == "11")
-                {
-                    RecalcularTarifa();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void CrearSolicitudDeEntrega()
@@ -3067,7 +3155,7 @@ namespace delibery
 
             string codigocliente = LeerTexto("Código del cliente: ");
             string codigopaquete = LeerTexto("Código del paquete: ");
-            double distancia = LeerNumero("Distancia estimada en km: ");
+            double distancia = LeerNumeroEnRango("Distancia estimada en km: ", 1, 100);
 
             if (distancia > 100)
             {
@@ -3344,9 +3432,9 @@ namespace delibery
             entrega.MostrarInformacionEntrega();
             Console.WriteLine();
 
-            string respuesta = LeerTexto("¿Seguro que la quiere cancelar? (s/n): ");
+            string respuesta = LeerOpcion("¿Seguro que la quiere cancelar? (s/n): ", "|S|N|");
 
-            if (respuesta.ToLower() != "s")
+            if (respuesta != "S")
             {
                 Console.WriteLine();
                 Console.WriteLine("No se canceló nada.");
@@ -3397,7 +3485,7 @@ namespace delibery
                 return;
             }
 
-            double nota = LeerNumero("Calificación del 1 al 5: ");
+            double nota = LeerNumeroEnRango("Calificación del 1 al 5: ", 1, 5);
 
             if (sistema.CalificarEntrega(codigo, nota) == true)
             {
@@ -3427,7 +3515,7 @@ namespace delibery
 
             Console.WriteLine();
             Console.WriteLine("Distancia actual: " + entrega.Distanciaestimada + " km");
-            double distancia = LeerNumero("Distancia nueva en km: ");
+            double distancia = LeerNumeroEnRango("Distancia nueva en km: ", 1, 100);
 
             if (distancia <= 0 || distancia > 100)
             {
@@ -3452,55 +3540,57 @@ namespace delibery
 
         static void MenuIncidencias()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("INCIDENCIAS");
-                Console.WriteLine();
-                Console.WriteLine("1. Registrar incidencia");
-                Console.WriteLine("2. Cerrar incidencia");
-                Console.WriteLine("3. Consultar incidencia");
-                Console.WriteLine("4. Listar todas");
-                Console.WriteLine("5. Listar solo las abiertas");
-                Console.WriteLine("6. Ver las de una entrega");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("-------- GESTION DE INCIDENCIAS --------");
+                Console.WriteLine("1. Registrar una incidencia");
+                Console.WriteLine("2. Cerrar una incidencia");
+                Console.WriteLine("3. Consultar una incidencia por codigo");
+                Console.WriteLine("4. Listar todas las incidencias");
+                Console.WriteLine("5. Listar solo las incidencias abiertas");
+                Console.WriteLine("6. Ver las incidencias de una entrega");
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    RegistrarIncidencia();
+                    case "1":
+                        RegistrarIncidencia();
+                        break;
+
+                    case "2":
+                        CerrarIncidencia();
+                        break;
+
+                    case "3":
+                        ConsultarIncidencia();
+                        break;
+
+                    case "4":
+                        ListarIncidencias(false);
+                        break;
+
+                    case "5":
+                        ListarIncidencias(true);
+                        break;
+
+                    case "6":
+                        VerIncidenciasDeEntrega();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    CerrarIncidencia();
-                }
-                else if (opcion == "3")
-                {
-                    ConsultarIncidencia();
-                }
-                else if (opcion == "4")
-                {
-                    ListarIncidencias(false);
-                }
-                else if (opcion == "5")
-                {
-                    ListarIncidencias(true);
-                }
-                else if (opcion == "6")
-                {
-                    VerIncidenciasDeEntrega();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void RegistrarIncidencia()
@@ -3708,55 +3798,57 @@ namespace delibery
 
         static void MenuReportes()
         {
-            while (true)
+            string opcion = "";
+
+            do
             {
                 Console.WriteLine();
-                Console.WriteLine("REPORTES");
-                Console.WriteLine();
+                Console.WriteLine("--------------- REPORTES ---------------");
                 Console.WriteLine("1. Entregas activas");
                 Console.WriteLine("2. Entregas por repartidor");
                 Console.WriteLine("3. Ingresos por tipo de servicio");
-                Console.WriteLine("4. Paquetes por tipo");
+                Console.WriteLine("4. Cantidad de paquetes por tipo");
                 Console.WriteLine("5. Incidencias abiertas");
                 Console.WriteLine("6. Resumen general");
-                Console.WriteLine("0. Regresar");
-                Console.WriteLine();
+                Console.WriteLine("0. Regresar al menu principal");
 
-                string opcion = LeerTexto("Opción: ");
+                opcion = LeerTexto("Seleccione una opcion: ");
 
-                if (opcion == "1")
+                switch (opcion)
                 {
-                    ReporteEntregasActivas();
+                    case "1":
+                        ReporteEntregasActivas();
+                        break;
+
+                    case "2":
+                        ReporteEntregasPorRepartidor();
+                        break;
+
+                    case "3":
+                        ReporteIngresos();
+                        break;
+
+                    case "4":
+                        ReportePaquetesPorTipo();
+                        break;
+
+                    case "5":
+                        ReporteIncidenciasAbiertas();
+                        break;
+
+                    case "6":
+                        ReporteResumenGeneral();
+                        break;
+
+                    case "0":
+                        break;
+
+                    default:
+                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                        break;
                 }
-                else if (opcion == "2")
-                {
-                    ReporteEntregasPorRepartidor();
-                }
-                else if (opcion == "3")
-                {
-                    ReporteIngresos();
-                }
-                else if (opcion == "4")
-                {
-                    ReportePaquetesPorTipo();
-                }
-                else if (opcion == "5")
-                {
-                    ReporteIncidenciasAbiertas();
-                }
-                else if (opcion == "6")
-                {
-                    ReporteResumenGeneral();
-                }
-                else if (opcion == "0")
-                {
-                    return;
-                }
-                else
-                {
-                    MostrarError("Opción no válida.");
-                }
-            }
+
+            } while (opcion != "0");
         }
 
         static void ReporteEntregasActivas()
@@ -3882,15 +3974,15 @@ namespace delibery
                 Paquete paquete = sistema.Paquetes[i];
                 pesototal = pesototal + paquete.Peso;
 
-                if (paquete is Documento)
+                if (paquete.Tipo() == "DOCUMENTO")
                 {
                     documentos = documentos + 1;
                 }
-                else if (paquete is PaqueteFragil)
+                else if (paquete.Tipo() == "FRAGIL")
                 {
                     fragiles = fragiles + 1;
                 }
-                else if (paquete is ProductoRefrigerado)
+                else if (paquete.Tipo() == "REFRIGERADO")
                 {
                     refrigerados = refrigerados + 1;
                 }
@@ -3965,8 +4057,20 @@ namespace delibery
             Pausa();
         }
 
+        static void MostrarPortada()
+        {
+            Console.WriteLine();
+            Console.WriteLine("========================================================================");
+            Console.WriteLine("                          GOXELA DELIVERY                               ");
+            Console.WriteLine("            Sistema de administracion de entregas - Xela                ");
+            Console.WriteLine("========================================================================");
+            Console.WriteLine();
+        }
+
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            MostrarPortada();
             MenuPrincipal();
         }
     }
