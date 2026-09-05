@@ -8,6 +8,124 @@ namespace delibery
 {
     internal class Program
     {
+        class ErrorGoXela : Exception
+        {
+            public ErrorGoXela(string mensaje) : base(mensaje)
+            {
+            }
+        }
+
+        static class Validar
+        {
+            public static void TextoObligatorio(string valor, string campo)
+            {
+                if (string.IsNullOrWhiteSpace(valor) == true)
+                {
+                    throw new ErrorGoXela("El campo '" + campo + "' es obligatorio y no puede quedar vacio.");
+                }
+            }
+
+            public static void NoNegativo(double valor, string campo)
+            {
+                if (valor < 0)
+                {
+                    throw new ErrorGoXela("El campo '" + campo + "' no puede ser negativo. Se recibio: " + valor);
+                }
+            }
+
+            public static void MayorQueCero(double valor, string campo)
+            {
+                if (valor <= 0)
+                {
+                    throw new ErrorGoXela("El campo '" + campo + "' debe ser mayor que cero. Se recibio: " + valor);
+                }
+            }
+
+            public static void EnRango(double valor, double minimo, double maximo, string campo)
+            {
+                if (valor < minimo || valor > maximo)
+                {
+                    throw new ErrorGoXela("El campo '" + campo + "' debe estar entre " + minimo + " y " + maximo + ". Se recibio: " + valor);
+                }
+            }
+
+            public static void UnoDeEstos(string valor, string campo, string permitidos)
+            {
+                string limpio = "";
+
+                if (valor != null)
+                {
+                    limpio = valor.Trim().ToUpper();
+                }
+
+                if (permitidos.Contains("|" + limpio + "|") == false)
+                {
+                    throw new ErrorGoXela("El campo '" + campo + "' solo acepta: " + permitidos.Replace("|", " ").Trim() + ". Se recibio: " + valor);
+                }
+            }
+
+            public static bool SoloDigitos(string texto)
+            {
+                if (string.IsNullOrWhiteSpace(texto) == true)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < texto.Length; i++)
+                {
+                    if (texto[i] < '0' || texto[i] > '9')
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public static void Telefono(string telefono)
+            {
+                TextoObligatorio(telefono, "telefono");
+                string limpio = telefono.Trim().Replace("-", "").Replace(" ", "");
+
+                if (limpio.Length != 8 || SoloDigitos(limpio) == false)
+                {
+                    throw new ErrorGoXela("El telefono debe tener exactamente 8 digitos. Se recibio: " + telefono);
+                }
+            }
+
+            public static void Correo(string correo)
+            {
+                TextoObligatorio(correo, "correo");
+                int posarroba = correo.IndexOf('@');
+                int pospunto = correo.LastIndexOf('.');
+
+                if (posarroba < 1 || pospunto < posarroba + 2 || pospunto == correo.Length - 1)
+                {
+                    throw new ErrorGoXela("El correo no tiene un formato valido (ejemplo: nombre@correo.com). Se recibio: " + correo);
+                }
+            }
+
+            public static void DistanciaEnCobertura(double distancia)
+            {
+                MayorQueCero(distancia, "distancia estimada");
+
+                if (distancia > 100)
+                {
+                    throw new ErrorGoXela("GoXela solo cubre hasta 100 km a la redonda. Se recibio: " + distancia + " km.");
+                }
+            }
+
+            public static void ValorDeclarado(double valor)
+            {
+                NoNegativo(valor, "valor declarado");
+
+                if (valor > 50000)
+                {
+                    throw new ErrorGoXela("GoXela no transporta paquetes con valor mayor a Q50,000.00. Se recibio: Q" + valor);
+                }
+            }
+        }
+
         public abstract class Persona
         {
             private string codigo;
@@ -15,7 +133,11 @@ namespace delibery
             public string Codigo
             {
                 get { return codigo; }
-                set { codigo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo");
+                    codigo = value.Trim().ToUpper();
+                }
             }
 
             private string nombrecompleto;
@@ -23,14 +145,22 @@ namespace delibery
             public string NombreCompleto
             {
                 get { return nombrecompleto; }
-                set { nombrecompleto = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "nombre completo");
+                    nombrecompleto = value.Trim();
+                }
             }
 
             private string telefono;
             public string Telefono
             {
                 get { return telefono; }
-                set { telefono = value; }
+                set
+                {
+                    Validar.Telefono(value);
+                    telefono = value.Trim();
+                }
             }
 
             public Persona(string codigo, string nombrecompleto, string telefono)
@@ -90,7 +220,11 @@ namespace delibery
             public string Correo
             {
                 get { return correo; }
-                set { correo = value; }
+                set
+                {
+                    Validar.Correo(value);
+                    correo = value.Trim();
+                }
             }
 
 
@@ -98,14 +232,22 @@ namespace delibery
             public string Direccion
             {
                 get { return direccion; }
-                set { direccion = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "direccion");
+                    direccion = value.Trim();
+                }
             }
 
             private int cantidad;
             public int Cantidad
             {
                 get { return cantidad; }
-                set { cantidad = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "cantidad de solicitudes");
+                    cantidad = value;
+                }
             }
 
 
@@ -190,28 +332,44 @@ namespace delibery
             public string Tipolicencia
             {
                 get { return tipolicencia; }
-                set { tipolicencia = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "tipo de licencia", "|NINGUNA|M|A|B|");
+                    tipolicencia = value.Trim().ToUpper();
+                }
             }
 
             private string estado;
             public string Estado
             {
                 get { return estado; }
-                set { estado = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "estado del repartidor", "|DISPONIBLE|ASIGNADO|FUERA DE SERVICIO|");
+                    estado = value.Trim().ToUpper();
+                }
             }
 
             private int entregasrealizadas;
             public int Entregasrealizadas
             {
                 get { return entregasrealizadas; }
-                set { entregasrealizadas = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "entregas realizadas");
+                    entregasrealizadas = value;
+                }
             }
 
             private double calificacion;
             public double Calificacion
             {
                 get { return calificacion; }
-                set { calificacion = value; }
+                set
+                {
+                    Validar.EnRango(value, 0, 5, "calificacion del repartidor");
+                    calificacion = value;
+                }
             }
 
             public Repartidor(string codigo, string nombrecompleto, string telefono, string nummerolicencia, string tipolicencia) : base(codigo, nombrecompleto, telefono)
@@ -319,49 +477,77 @@ namespace delibery
             public String MyCodigo
             {
                 get { return codigo; }
-                set { codigo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo del vehiculo");
+                    codigo = value.Trim().ToUpper();
+                }
             }
             private String placa;
 
             public String MyPlaca
             {
                 get { return placa; }
-                set { placa = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "placa");
+                    placa = value.Trim().ToUpper();
+                }
             }
             private String marca;
 
             public String MyMarca
             {
                 get { return marca; }
-                set { marca = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "marca");
+                    marca = value.Trim();
+                }
             }
             private string modelo;
 
             public string MyModelo
             {
                 get { return modelo; }
-                set { modelo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "modelo");
+                    modelo = value.Trim();
+                }
             }
             private double cargamaxima;
 
             public double Mycargamaxima
             {
                 get { return cargamaxima; }
-                set { cargamaxima = value; }
+                set
+                {
+                    Validar.MayorQueCero(value, "capacidad maxima de carga");
+                    cargamaxima = value;
+                }
             }
             private double costoOperativo;
 
             public double MycostoOperativo
             {
                 get { return costoOperativo; }
-                set { costoOperativo = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "costo operativo");
+                    costoOperativo = value;
+                }
             }
             private string tipoLicencia;
 
             public string MytipoLicencia
             {
                 get { return tipoLicencia; }
-                set { tipoLicencia = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "licencia que pide el vehiculo", "|NINGUNA|M|A O B|");
+                    tipoLicencia = value.Trim().ToUpper() == "A O B" ? "A o B" : value.Trim().ToUpper();
+                }
             }
 
             public Vehiculo(string codigo, string placa, string marca, string modelo, double cargaMaxima, double costoOperativo, string tipoLicencia)
@@ -396,7 +582,11 @@ namespace delibery
             public string Estado
             {
                 get { return estado; }
-                set { estado = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "estado del vehiculo", "|DISPONIBLE|ASIGNADO|EN MANTENIMIENTO|");
+                    estado = value.Trim().ToUpper();
+                }
             }
 
             public virtual void MostrarInformacionVehiculo()
@@ -623,49 +813,77 @@ namespace delibery
             public string Codigo
             {
                 get { return codigo; }
-                set { codigo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo del paquete");
+                    codigo = value.Trim().ToUpper();
+                }
             }
 
             private string descripcion;
             public string Descripcion
             {
                 get { return descripcion; }
-                set { descripcion = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "descripcion");
+                    descripcion = value.Trim();
+                }
             }
 
             private double peso;
             public double Peso
             {
                 get { return peso; }
-                set { peso = value; }
+                set
+                {
+                    Validar.MayorQueCero(value, "peso");
+                    peso = value;
+                }
             }
 
             private double valordeclarado;
             public double Valordeclarado
             {
                 get { return valordeclarado; }
-                set { valordeclarado = value; }
+                set
+                {
+                    Validar.ValorDeclarado(value);
+                    valordeclarado = value;
+                }
             }
 
             private string direccionorigen;
             public string Direccionorigen
             {
                 get { return direccionorigen; }
-                set { direccionorigen = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "direccion de origen");
+                    direccionorigen = value.Trim();
+                }
             }
 
             private string direcciondestino;
             public string Direcciondestino
             {
                 get { return direcciondestino; }
-                set { direcciondestino = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "direccion de destino");
+                    direcciondestino = value.Trim();
+                }
             }
 
             private string estado = "REGISTRADO";
             public string Estado
             {
                 get { return estado; }
-                set { estado = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "estado del paquete", "|REGISTRADO|ASIGNADO|EN TRANSITO|ENTREGADO|");
+                    estado = value.Trim().ToUpper();
+                }
             }
 
             public Paquete(string codigo, string descripcion, double peso, double valordeclarado, string direccionorigen, string direcciondestino)
@@ -914,28 +1132,44 @@ namespace delibery
             public string Codigo
             {
                 get { return codigo; }
-                set { codigo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo de la incidencia");
+                    codigo = value.Trim().ToUpper();
+                }
             }
 
             private string codigoentrega;
             public string Codigoentrega
             {
                 get { return codigoentrega; }
-                set { codigoentrega = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo de la entrega");
+                    codigoentrega = value.Trim().ToUpper();
+                }
             }
 
             private string tipo;
             public string Tipo
             {
                 get { return tipo; }
-                set { tipo = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "tipo de incidencia", "|CLIENTE AUSENTE|DIRECCION INCORRECTA|PAQUETE DANADO|VEHICULO AVERIADO|RETRASO|CLIMA|RECHAZO|");
+                    tipo = value.Trim().ToUpper();
+                }
             }
 
             private string descripcion;
             public string Descripcion
             {
                 get { return descripcion; }
-                set { descripcion = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "descripcion de la incidencia");
+                    descripcion = value.Trim();
+                }
             }
 
             private DateTime fecha;
@@ -949,7 +1183,11 @@ namespace delibery
             public string Estado
             {
                 get { return estado; }
-                set { estado = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "estado de la incidencia", "|ABIERTA|CERRADA|");
+                    estado = value.Trim().ToUpper();
+                }
             }
 
             private string acciontomada;
@@ -1043,7 +1281,11 @@ namespace delibery
             public string Codigo
             {
                 get { return codigo; }
-                set { codigo = value; }
+                set
+                {
+                    Validar.TextoObligatorio(value, "codigo de la entrega");
+                    codigo = value.Trim().ToUpper();
+                }
             }
 
             private Cliente cliente;
@@ -1092,21 +1334,33 @@ namespace delibery
             public double Distanciaestimada
             {
                 get { return distanciaestimada; }
-                set { distanciaestimada = value; }
+                set
+                {
+                    Validar.DistanciaEnCobertura(value);
+                    distanciaestimada = value;
+                }
             }
 
             private string tiposervicio;
             public string Tiposervicio
             {
                 get { return tiposervicio; }
-                set { tiposervicio = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "tipo de servicio", "|NORMAL|PRIORITARIO|URGENTE|");
+                    tiposervicio = value.Trim().ToUpper();
+                }
             }
 
             private string estado = "SOLICITADA";
             public string Estado
             {
                 get { return estado; }
-                set { estado = value; }
+                set
+                {
+                    Validar.UnoDeEstos(value, "estado de la entrega", "|SOLICITADA|ASIGNADA|RECOGIDA|EN RUTA|ENTREGADA|CANCELADA|REPROGRAMADA|CON INCIDENCIA|");
+                    estado = value.Trim().ToUpper();
+                }
             }
 
             private string estadoanterior = "";
@@ -1120,35 +1374,55 @@ namespace delibery
             public double Tarifabase
             {
                 get { return tarifabase; }
-                set { tarifabase = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "tarifa base");
+                    tarifabase = value;
+                }
             }
 
             private double recargos;
             public double Recargos
             {
                 get { return recargos; }
-                set { recargos = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "recargos");
+                    recargos = value;
+                }
             }
 
             private double descuentos;
             public double Descuentos
             {
                 get { return descuentos; }
-                set { descuentos = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "descuentos");
+                    descuentos = value;
+                }
             }
 
             private double total;
             public double Total
             {
                 get { return total; }
-                set { total = value; }
+                set
+                {
+                    Validar.NoNegativo(value, "total");
+                    total = value;
+                }
             }
 
             private double calificacion;
             public double Calificacion
             {
                 get { return calificacion; }
-                set { calificacion = value; }
+                set
+                {
+                    Validar.EnRango(value, 0, 5, "calificacion de la entrega");
+                    calificacion = value;
+                }
             }
 
             public Entrega(string codigo, Cliente cliente, Paquete paquete, double distanciaestimada) : this(codigo, cliente, paquete, distanciaestimada, "NORMAL")
@@ -2324,44 +2598,57 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        MenuClientes();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            MenuClientes();
+                            break;
 
-                    case "2":
-                        MenuRepartidores();
-                        break;
+                        case "2":
+                            MenuRepartidores();
+                            break;
 
-                    case "3":
-                        MenuVehiculos();
-                        break;
+                        case "3":
+                            MenuVehiculos();
+                            break;
 
-                    case "4":
-                        MenuPaquetes();
-                        break;
+                        case "4":
+                            MenuPaquetes();
+                            break;
 
-                    case "5":
-                        MenuEntregas();
-                        break;
+                        case "5":
+                            MenuEntregas();
+                            break;
 
-                    case "6":
-                        MenuIncidencias();
-                        break;
+                        case "6":
+                            MenuIncidencias();
+                            break;
 
-                    case "7":
-                        MenuReportes();
-                        break;
+                        case "7":
+                            MenuReportes();
+                            break;
 
-                    case "8":
-                        Console.WriteLine();
-                        Console.WriteLine("Gracias por usar GoXela Delivery.");
-                        break;
+                        case "8":
+                            Console.WriteLine();
+                            Console.WriteLine("Gracias por usar GoXela Delivery.");
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "8");
@@ -2383,30 +2670,43 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        RegistrarCliente();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            RegistrarCliente();
+                            break;
 
-                    case "2":
-                        ConsultarCliente();
-                        break;
+                        case "2":
+                            ConsultarCliente();
+                            break;
 
-                    case "3":
-                        ListarClientes();
-                        break;
+                        case "3":
+                            ListarClientes();
+                            break;
 
-                    case "4":
-                        ActualizarCliente();
-                        break;
+                        case "4":
+                            ActualizarCliente();
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -2428,30 +2728,43 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        RegistrarRepartidor();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            RegistrarRepartidor();
+                            break;
 
-                    case "2":
-                        ConsultarRepartidor();
-                        break;
+                        case "2":
+                            ConsultarRepartidor();
+                            break;
 
-                    case "3":
-                        ListarRepartidores();
-                        break;
+                        case "3":
+                            ListarRepartidores();
+                            break;
 
-                    case "4":
-                        CambiarEstadoRepartidor();
-                        break;
+                        case "4":
+                            CambiarEstadoRepartidor();
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -2718,34 +3031,47 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        RegistrarVehiculo();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            RegistrarVehiculo();
+                            break;
 
-                    case "2":
-                        ConsultarVehiculo();
-                        break;
+                        case "2":
+                            ConsultarVehiculo();
+                            break;
 
-                    case "3":
-                        ListarVehiculos();
-                        break;
+                        case "3":
+                            ListarVehiculos();
+                            break;
 
-                    case "4":
-                        CambiarEstadoVehiculo();
-                        break;
+                        case "4":
+                            CambiarEstadoVehiculo();
+                            break;
 
-                    case "5":
-                        ProbarCompatibilidad();
-                        break;
+                        case "5":
+                            ProbarCompatibilidad();
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -2954,26 +3280,39 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        RegistrarPaquete();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            RegistrarPaquete();
+                            break;
 
-                    case "2":
-                        ConsultarPaquete();
-                        break;
+                        case "2":
+                            ConsultarPaquete();
+                            break;
 
-                    case "3":
-                        ListarPaquetes();
-                        break;
+                        case "3":
+                            ListarPaquetes();
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -3107,58 +3446,71 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        CrearSolicitudDeEntrega();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            CrearSolicitudDeEntrega();
+                            break;
 
-                    case "2":
-                        AsignarRepartidorYVehiculo();
-                        break;
+                        case "2":
+                            AsignarRepartidorYVehiculo();
+                            break;
 
-                    case "3":
-                        RecalcularTarifa();
-                        break;
+                        case "3":
+                            RecalcularTarifa();
+                            break;
 
-                    case "4":
-                        ActualizarEstadoDeEntrega();
-                        break;
+                        case "4":
+                            ActualizarEstadoDeEntrega();
+                            break;
 
-                    case "5":
-                        ConfirmarEntrega();
-                        break;
+                        case "5":
+                            ConfirmarEntrega();
+                            break;
 
-                    case "6":
-                        CancelarEntrega();
-                        break;
+                        case "6":
+                            CancelarEntrega();
+                            break;
 
-                    case "7":
-                        ReprogramarEntrega();
-                        break;
+                        case "7":
+                            ReprogramarEntrega();
+                            break;
 
-                    case "8":
-                        CalificarEntrega();
-                        break;
+                        case "8":
+                            CalificarEntrega();
+                            break;
 
-                    case "9":
-                        ConsultarEntrega();
-                        break;
+                        case "9":
+                            ConsultarEntrega();
+                            break;
 
-                    case "10":
-                        ListarEntregas(true);
-                        break;
+                        case "10":
+                            ListarEntregas(true);
+                            break;
 
-                    case "11":
-                        ListarEntregas(false);
-                        break;
+                        case "11":
+                            ListarEntregas(false);
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -3587,38 +3939,51 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        RegistrarIncidencia();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            RegistrarIncidencia();
+                            break;
 
-                    case "2":
-                        CerrarIncidencia();
-                        break;
+                        case "2":
+                            CerrarIncidencia();
+                            break;
 
-                    case "3":
-                        ConsultarIncidencia();
-                        break;
+                        case "3":
+                            ConsultarIncidencia();
+                            break;
 
-                    case "4":
-                        ListarIncidencias(false);
-                        break;
+                        case "4":
+                            ListarIncidencias(false);
+                            break;
 
-                    case "5":
-                        ListarIncidencias(true);
-                        break;
+                        case "5":
+                            ListarIncidencias(true);
+                            break;
 
-                    case "6":
-                        VerIncidenciasDeEntrega();
-                        break;
+                        case "6":
+                            VerIncidenciasDeEntrega();
+                            break;
 
-                    case "0":
-                        break;
+                        case "0":
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
@@ -3850,12 +4215,35 @@ namespace delibery
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
-                switch (opcion)
+                try
                 {
-                    case "1":
-                        ReporteEntregasActivas();
-                        break;
+                    switch (opcion)
+                    {
+                        case "1":
+                            ReporteEntregasActivas();
+                            break;
 
+<<<<<<< HEAD
+                        case "2":
+                            ReporteEntregasFinalizadas();
+                            break;
+
+                        case "3":
+                            ReporteEntregasCanceladas();
+                            break;
+
+                        case "4":
+                            ReporteEntregasConIncidencias();
+                            break;
+
+                        case "5":
+                            ReporteRepartidoresDisponibles();
+                            break;
+
+                        case "6":
+                            ReporteRepartidorConMasEntregas();
+                            break;
+=======
                     case "2":
                         ReporteEntregasFinalizadas();
                         break;
@@ -3895,13 +4283,45 @@ namespace delibery
                     case "11":
                         ReporteTodos();
                         break;
+>>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7
 
-                    case "0":
-                        break;
+                        case "7":
+                            ReporteVehiculoMasUtilizado();
+                            break;
 
-                    default:
-                        MostrarError("La opcion '" + opcion + "' no existe en este menu.");
-                        break;
+                        case "8":
+                            ReportePaquetesPorTipo();
+                            break;
+
+                        case "9":
+                            ReporteTotalDeIngresos();
+                            break;
+
+                        case "10":
+                            ReporteEntregaDeMayorCosto();
+                            break;
+
+                        case "11":
+                            ReporteTodos();
+                            break;
+
+                        case "0":
+                            break;
+
+                        default:
+                            MostrarError("La opcion '" + opcion + "' no existe en este menu.");
+                            break;
+                    }
+                }
+                catch (ErrorGoXela error)
+                {
+                    MostrarError(error.Message);
+                    Pausa();
+                }
+                catch (Exception error)
+                {
+                    MostrarError("Ocurrio un problema inesperado: " + error.Message);
+                    Pausa();
                 }
 
             } while (opcion != "0");
