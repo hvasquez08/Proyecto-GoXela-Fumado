@@ -1,0 +1,7 @@
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe.config
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.exe
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\bin\Debug\delibery.pdb
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.csproj.AssemblyReference.cache
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.csproj.CoreCompileInputs.cache
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.exe
+C:\Users\Herbe\OneDrive\Documents\ProyectoDelevery\Proyecto-GoXela-Fumado\ProyectoDelibery\delibery\obj\Debug\delibery.pdb

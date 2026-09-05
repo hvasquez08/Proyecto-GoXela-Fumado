@@ -1432,6 +1432,37 @@ namespace delibery
                 Console.WriteLine("Incidencias: " + Incidencias.Count);
             }
 
+            public string EnUnaLinea()
+            {
+                string nombrecliente = Cliente.NombreCompleto;
+
+                if (nombrecliente.Length > 19)
+                {
+                    nombrecliente = nombrecliente.Substring(0, 19);
+                }
+
+                string nombrerepartidor = "sin asignar";
+
+                if (Repartidor != null)
+                {
+                    nombrerepartidor = Repartidor.NombreCompleto;
+                }
+
+                if (nombrerepartidor.Length > 12)
+                {
+                    nombrerepartidor = nombrerepartidor.Substring(0, 12);
+                }
+
+                return Codigo.PadRight(8) +
+                       Fechasolicitud.ToString("dd/MM/yyyy").PadRight(13) +
+                       nombrecliente.PadRight(20) +
+                       Paquete.Tipo().PadRight(13) +
+                       Tiposervicio.PadRight(12) +
+                       nombrerepartidor.PadRight(13) +
+                       Total.ToString("0.00").PadLeft(7) + "  " +
+                       Estado;
+            }
+
             public bool ValidarDatos()
             {
                 if (string.IsNullOrWhiteSpace(Codigo))
@@ -3804,13 +3835,18 @@ namespace delibery
             {
                 Console.WriteLine();
                 Console.WriteLine("--------------- REPORTES ---------------");
-                Console.WriteLine("1. Entregas activas");
-                Console.WriteLine("2. Entregas por repartidor");
-                Console.WriteLine("3. Ingresos por tipo de servicio");
-                Console.WriteLine("4. Cantidad de paquetes por tipo");
-                Console.WriteLine("5. Incidencias abiertas");
-                Console.WriteLine("6. Resumen general");
-                Console.WriteLine("0. Regresar al menu principal");
+                Console.WriteLine(" 1. Entregas activas");
+                Console.WriteLine(" 2. Entregas finalizadas");
+                Console.WriteLine(" 3. Entregas canceladas");
+                Console.WriteLine(" 4. Entregas con incidencias");
+                Console.WriteLine(" 5. Repartidores disponibles");
+                Console.WriteLine(" 6. Repartidor con mas entregas");
+                Console.WriteLine(" 7. Vehiculo mas utilizado");
+                Console.WriteLine(" 8. Cantidad de paquetes por tipo");
+                Console.WriteLine(" 9. Total de ingresos");
+                Console.WriteLine("10. Entrega con mayor costo");
+                Console.WriteLine("11. Mostrar TODOS los reportes seguidos");
+                Console.WriteLine(" 0. Regresar al menu principal");
 
                 opcion = LeerTexto("Seleccione una opcion: ");
 
@@ -3821,23 +3857,43 @@ namespace delibery
                         break;
 
                     case "2":
-                        ReporteEntregasPorRepartidor();
+                        ReporteEntregasFinalizadas();
                         break;
 
                     case "3":
-                        ReporteIngresos();
+                        ReporteEntregasCanceladas();
                         break;
 
                     case "4":
-                        ReportePaquetesPorTipo();
+                        ReporteEntregasConIncidencias();
                         break;
 
                     case "5":
-                        ReporteIncidenciasAbiertas();
+                        ReporteRepartidoresDisponibles();
                         break;
 
                     case "6":
-                        ReporteResumenGeneral();
+                        ReporteRepartidorConMasEntregas();
+                        break;
+
+                    case "7":
+                        ReporteVehiculoMasUtilizado();
+                        break;
+
+                    case "8":
+                        ReportePaquetesPorTipo();
+                        break;
+
+                    case "9":
+                        ReporteTotalDeIngresos();
+                        break;
+
+                    case "10":
+                        ReporteEntregaDeMayorCosto();
+                        break;
+
+                    case "11":
+                        ReporteTodos();
                         break;
 
                     case "0":
@@ -3851,210 +3907,358 @@ namespace delibery
             } while (opcion != "0");
         }
 
+
+
+
+
+
+
+        static void EncabezadoEntregas()
+        {
+            Console.WriteLine("CODIGO  FECHA        CLIENTE             PAQUETE      SERVICIO    REP.            TOTAL  ESTADO");
+            Separador();
+        }
+
         static void ReporteEntregasActivas()
         {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 1 - Entregas activas");
-            Console.WriteLine();
+            Titulo("Reporte 1 - Entregas activas");
+            EncabezadoEntregas();
+            int cuantas = 0;
 
+            for (int i = 0; i < sistema.Entregas.Count; i++)
+            {
+                if (sistema.Entregas[i].EstaActiva() == true)
+                {
+                    Console.WriteLine(sistema.Entregas[i].EnUnaLinea());
+                    cuantas = cuantas + 1;
+                }
+            }
+
+            Separador();
+            Console.WriteLine("Total de entregas activas: " + cuantas);
+            Pausa();
+        }
+
+        static void ReporteEntregasFinalizadas()
+        {
+            Titulo("Reporte 2 - Entregas finalizadas");
+            EncabezadoEntregas();
+            int cuantas = 0;
+
+            for (int i = 0; i < sistema.Entregas.Count; i++)
+            {
+                if (sistema.Entregas[i].Estado == "ENTREGADA")
+                {
+                    Console.WriteLine(sistema.Entregas[i].EnUnaLinea());
+                    cuantas = cuantas + 1;
+                }
+            }
+
+            Separador();
+            Console.WriteLine("Total de entregas finalizadas: " + cuantas);
+            Pausa();
+        }
+
+        static void ReporteEntregasCanceladas()
+        {
+            Titulo("Reporte 3 - Entregas canceladas");
+            EncabezadoEntregas();
+            int cuantas = 0;
+
+            for (int i = 0; i < sistema.Entregas.Count; i++)
+            {
+                if (sistema.Entregas[i].Estado == "CANCELADA")
+                {
+                    Console.WriteLine(sistema.Entregas[i].EnUnaLinea());
+                    cuantas = cuantas + 1;
+                }
+            }
+
+            Separador();
+            Console.WriteLine("Total de entregas canceladas: " + cuantas);
+            Pausa();
+        }
+
+        static void ReporteEntregasConIncidencias()
+        {
+            Titulo("Reporte 4 - Entregas con incidencias");
             int cuantas = 0;
 
             for (int i = 0; i < sistema.Entregas.Count; i++)
             {
                 Entrega entrega = sistema.Entregas[i];
 
-                if (entrega.EstaActiva() == true)
+                if (entrega.Incidencias.Count > 0)
                 {
-                    string nombrerepartidor = "sin asignar";
-
-                    if (entrega.Repartidor != null)
-                    {
-                        nombrerepartidor = entrega.Repartidor.NombreCompleto;
-                    }
-
-                    Console.WriteLine(entrega.Codigo + "   " + entrega.Cliente.NombreCompleto + "   " + entrega.Estado + "   Q" + entrega.Total + "   " + nombrerepartidor);
                     cuantas = cuantas + 1;
+                    Console.WriteLine();
+                    Console.WriteLine("Entrega " + entrega.Codigo + "  (" + entrega.Estado + ")  cliente: " + entrega.Cliente.NombreCompleto);
+
+                    for (int j = 0; j < entrega.Incidencias.Count; j++)
+                    {
+                        Incidencia incidencia = entrega.Incidencias[j];
+                        Console.WriteLine("   " + incidencia.Codigo + "   " + incidencia.Tipo.PadRight(22) + incidencia.Estado);
+                    }
                 }
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Total de entregas activas: " + cuantas);
-
+            Separador();
+            Console.WriteLine("Total de entregas con incidencias: " + cuantas);
+            Console.WriteLine("Total de incidencias registradas : " + sistema.Incidencias.Count);
             Pausa();
         }
 
-        static void ReporteEntregasPorRepartidor()
+        static void ReporteRepartidoresDisponibles()
         {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 2 - Entregas por repartidor");
-            Console.WriteLine();
-
-            if (sistema.Repartidores.Count == 0)
-            {
-                Console.WriteLine("Todavía no hay repartidores.");
-                Pausa();
-                return;
-            }
+            Titulo("Reporte 5 - Repartidores disponibles");
+            Console.WriteLine("CODIGO   NOMBRE                     TELEFONO   LICENCIA   ENTREGAS  CALIFICACION");
+            Separador();
+            int cuantos = 0;
 
             for (int i = 0; i < sistema.Repartidores.Count; i++)
             {
                 Repartidor repartidor = sistema.Repartidores[i];
-                int asignadas = 0;
 
-                for (int j = 0; j < sistema.Entregas.Count; j++)
+                if (repartidor.Estado == "DISPONIBLE")
                 {
-                    if (sistema.Entregas[j].Repartidor == repartidor)
-                    {
-                        asignadas = asignadas + 1;
-                    }
+                    Console.WriteLine(repartidor.Codigo.PadRight(9) +
+                                      repartidor.NombreCompleto.PadRight(27) +
+                                      repartidor.Telefono.PadRight(11) +
+                                      repartidor.Tipolicencia.PadRight(11) +
+                                      repartidor.Entregasrealizadas.ToString().PadLeft(8) +
+                                      repartidor.Calificacion.ToString("0.00").PadLeft(14));
+                    cuantos = cuantos + 1;
                 }
-
-                Console.WriteLine(repartidor.Codigo + "   " + repartidor.NombreCompleto);
-                Console.WriteLine("   entregas asignadas: " + asignadas + "   completadas: " + repartidor.Entregasrealizadas + "   calificación: " + repartidor.Calificacion);
             }
 
+            Separador();
+            Console.WriteLine("Total de repartidores disponibles: " + cuantos + " de " + sistema.Repartidores.Count);
             Pausa();
         }
 
-        static void ReporteIngresos()
+        static void ReporteRepartidorConMasEntregas()
         {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 3 - Ingresos por tipo de servicio");
-            Console.WriteLine();
+            Titulo("Reporte 6 - Repartidor con mas entregas");
 
-            double normal = 0;
-            double prioritario = 0;
-            double urgente = 0;
+            if (sistema.Repartidores.Count == 0)
+            {
+                Console.WriteLine("Todavia no hay repartidores registrados.");
+                Pausa();
+                return;
+            }
+
+            Repartidor mejor = sistema.Repartidores[0];
+
+            for (int i = 1; i < sistema.Repartidores.Count; i++)
+            {
+                if (sistema.Repartidores[i].Entregasrealizadas > mejor.Entregasrealizadas)
+                {
+                    mejor = sistema.Repartidores[i];
+                }
+            }
+
+            if (mejor.Entregasrealizadas == 0)
+            {
+                Console.WriteLine("Todavia ningun repartidor ha completado entregas.");
+                Pausa();
+                return;
+            }
+
+            Console.WriteLine("El repartidor con mas entregas es:");
+            Console.WriteLine();
+            mejor.MostrarInformacion();
+            Pausa();
+        }
+
+        static void ReporteVehiculoMasUtilizado()
+        {
+            Titulo("Reporte 7 - Vehiculo mas utilizado");
+
+            if (sistema.Vehiculos.Count == 0)
+            {
+                Console.WriteLine("Todavia no hay vehiculos registrados.");
+                Pausa();
+                return;
+            }
+
+            int[] veces = new int[sistema.Vehiculos.Count];
 
             for (int i = 0; i < sistema.Entregas.Count; i++)
             {
-                Entrega entrega = sistema.Entregas[i];
+                Vehiculo usado = sistema.Entregas[i].Vehiculo;
 
-                if (entrega.Estado == "ENTREGADA")
+                if (usado != null)
                 {
-                    if (entrega.Tiposervicio == "PRIORITARIO")
+                    for (int j = 0; j < sistema.Vehiculos.Count; j++)
                     {
-                        prioritario = prioritario + entrega.Total;
-                    }
-                    else if (entrega.Tiposervicio == "URGENTE")
-                    {
-                        urgente = urgente + entrega.Total;
-                    }
-                    else
-                    {
-                        normal = normal + entrega.Total;
+                        if (sistema.Vehiculos[j].MyCodigo == usado.MyCodigo)
+                        {
+                            veces[j] = veces[j] + 1;
+                        }
                     }
                 }
             }
 
-            Console.WriteLine("NORMAL      : Q" + normal);
-            Console.WriteLine("PRIORITARIO : Q" + prioritario);
-            Console.WriteLine("URGENTE     : Q" + urgente);
-            Console.WriteLine();
-            Console.WriteLine("Total cobrado: Q" + (normal + prioritario + urgente));
-            Console.WriteLine("Solo cuenta las entregas ya ENTREGADAS.");
+            Console.WriteLine("CODIGO   TIPO           MARCA        PLACA           VECES USADO");
+            Separador();
+            int posiciondelmejor = 0;
+
+            for (int j = 0; j < sistema.Vehiculos.Count; j++)
+            {
+                Vehiculo vehiculo = sistema.Vehiculos[j];
+                Console.WriteLine(vehiculo.MyCodigo.PadRight(9) +
+                                  vehiculo.Tipo().PadRight(15) +
+                                  vehiculo.MyMarca.PadRight(13) +
+                                  vehiculo.MyPlaca.PadRight(16) +
+                                  veces[j].ToString().PadLeft(11));
+
+                if (veces[j] > veces[posiciondelmejor])
+                {
+                    posiciondelmejor = j;
+                }
+            }
+
+            Separador();
+
+            if (veces[posiciondelmejor] == 0)
+            {
+                Console.WriteLine("Todavia no se ha usado ningun vehiculo en una entrega.");
+            }
+            else
+            {
+                Console.WriteLine("El mas utilizado es " + sistema.Vehiculos[posiciondelmejor].MyCodigo + " (" +
+                                  sistema.Vehiculos[posiciondelmejor].Tipo() + ") con " +
+                                  veces[posiciondelmejor] + " entrega(s).");
+            }
 
             Pausa();
         }
 
         static void ReportePaquetesPorTipo()
         {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 4 - Paquetes por tipo");
-            Console.WriteLine();
-
-            int documentos = 0;
-            int estandar = 0;
-            int fragiles = 0;
-            int refrigerados = 0;
+            Titulo("Reporte 8 - Cantidad de paquetes por tipo");
+            string[] tipos = { "DOCUMENTO", "ESTANDAR", "FRAGIL", "REFRIGERADO" };
+            Console.WriteLine("TIPO             CANTIDAD");
+            Separador();
             double pesototal = 0;
 
-            for (int i = 0; i < sistema.Paquetes.Count; i++)
+            for (int i = 0; i < tipos.Length; i++)
             {
-                Paquete paquete = sistema.Paquetes[i];
-                pesototal = pesototal + paquete.Peso;
+                int cuantos = 0;
 
-                if (paquete.Tipo() == "DOCUMENTO")
+                for (int j = 0; j < sistema.Paquetes.Count; j++)
                 {
-                    documentos = documentos + 1;
+                    if (sistema.Paquetes[j].Tipo() == tipos[i])
+                    {
+                        cuantos = cuantos + 1;
+                    }
                 }
-                else if (paquete.Tipo() == "FRAGIL")
-                {
-                    fragiles = fragiles + 1;
-                }
-                else if (paquete.Tipo() == "REFRIGERADO")
-                {
-                    refrigerados = refrigerados + 1;
-                }
-                else
-                {
-                    estandar = estandar + 1;
-                }
+
+                Console.WriteLine(tipos[i].PadRight(17) + cuantos.ToString().PadLeft(8));
             }
 
-            Console.WriteLine("Documentos  : " + documentos);
-            Console.WriteLine("Estándar    : " + estandar);
-            Console.WriteLine("Frágiles    : " + fragiles);
-            Console.WriteLine("Refrigerados: " + refrigerados);
-            Console.WriteLine();
-            Console.WriteLine("Total de paquetes: " + sistema.Paquetes.Count + "   Peso total: " + pesototal + " kg");
+            for (int j = 0; j < sistema.Paquetes.Count; j++)
+            {
+                pesototal = pesototal + sistema.Paquetes[j].Peso;
+            }
 
+            Separador();
+            Console.WriteLine("Total de paquetes registrados: " + sistema.Paquetes.Count + "   Peso total: " + pesototal + " kg");
             Pausa();
         }
 
-        static void ReporteIncidenciasAbiertas()
+        static void ReporteTotalDeIngresos()
         {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 5 - Incidencias abiertas");
-            Console.WriteLine();
-
-            int cuantas = 0;
-
-            for (int i = 0; i < sistema.Incidencias.Count; i++)
-            {
-                Incidencia incidencia = sistema.Incidencias[i];
-
-                if (incidencia.Estado == "ABIERTA")
-                {
-                    Console.WriteLine(incidencia.Codigo + "   entrega " + incidencia.Codigoentrega + "   " + incidencia.Tipo);
-                    Console.WriteLine("   " + incidencia.Descripcion);
-                    cuantas = cuantas + 1;
-                }
-            }
-
-            if (cuantas == 0)
-            {
-                Console.WriteLine("No hay incidencias abiertas.");
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("Total: " + cuantas);
-
-            Pausa();
-        }
-
-        static void ReporteResumenGeneral()
-        {
-            Console.WriteLine();
-            Console.WriteLine("Reporte 6 - Resumen general");
-            Console.WriteLine();
-
+            Titulo("Reporte 9 - Total de ingresos");
             ResumenReporte resumen = sistema.ObtenerResumen();
 
-            Console.WriteLine("Clientes registrados   : " + sistema.Clientes.Count);
-            Console.WriteLine("Repartidores           : " + sistema.Repartidores.Count + "   (disponibles: " + sistema.ContarRepartidoresDisponibles() + ")");
-            Console.WriteLine("Vehículos              : " + sistema.Vehiculos.Count + "   (disponibles: " + sistema.ContarVehiculosDisponibles() + ")");
-            Console.WriteLine("Paquetes               : " + sistema.Paquetes.Count);
-            Console.WriteLine("Incidencias            : " + sistema.Incidencias.Count);
-            Console.WriteLine();
-            Console.WriteLine("Entregas totales       : " + resumen.TotalEntregas);
-            Console.WriteLine("   activas             : " + resumen.EntregasActivas);
-            Console.WriteLine("   entregadas          : " + resumen.EntregasFinalizadas);
-            Console.WriteLine("   canceladas          : " + resumen.EntregasCanceladas);
-            Console.WriteLine();
-            Console.WriteLine("Ingresos cobrados      : Q" + resumen.TotalIngresos);
+            Console.WriteLine("Entregas registradas : " + resumen.TotalEntregas);
+            Console.WriteLine("  - activas          : " + resumen.EntregasActivas);
+            Console.WriteLine("  - finalizadas      : " + resumen.EntregasFinalizadas);
+            Console.WriteLine("  - canceladas       : " + resumen.EntregasCanceladas);
+            Separador();
+            Console.WriteLine("INGRESOS COBRADOS (solo entregas ENTREGADAS): Q" + resumen.TotalIngresos.ToString("0.00"));
 
+            double porcobrar = 0;
+
+            for (int i = 0; i < sistema.Entregas.Count; i++)
+            {
+                if (sistema.Entregas[i].EstaActiva() == true)
+                {
+                    porcobrar = porcobrar + sistema.Entregas[i].Total;
+                }
+            }
+
+            Console.WriteLine("Pendiente de cobro (entregas activas)       : Q" + porcobrar.ToString("0.00"));
             Pausa();
+        }
+
+        static void ReporteEntregaDeMayorCosto()
+        {
+            Titulo("Reporte 10 - Entrega con mayor costo");
+            int cantidad = sistema.Entregas.Count;
+
+            if (cantidad == 0)
+            {
+                Console.WriteLine("Todavia no hay entregas registradas.");
+                Pausa();
+                return;
+            }
+
+            int[] posiciones = new int[cantidad];
+
+            for (int i = 0; i < cantidad; i++)
+            {
+                posiciones[i] = i;
+            }
+
+            for (int i = 0; i < cantidad - 1; i++)
+            {
+                for (int j = 0; j < cantidad - 1 - i; j++)
+                {
+                    if (sistema.Entregas[posiciones[j]].Total < sistema.Entregas[posiciones[j + 1]].Total)
+                    {
+                        int auxiliar = posiciones[j];
+                        posiciones[j] = posiciones[j + 1];
+                        posiciones[j + 1] = auxiliar;
+                    }
+                }
+            }
+
+            Console.WriteLine("Entregas ordenadas de la mas cara a la mas barata:");
+            Console.WriteLine();
+            EncabezadoEntregas();
+            int cuantasmostrar = cantidad;
+
+            if (cuantasmostrar > 5)
+            {
+                cuantasmostrar = 5;
+            }
+
+            for (int i = 0; i < cuantasmostrar; i++)
+            {
+                Console.WriteLine(sistema.Entregas[posiciones[i]].EnUnaLinea());
+            }
+
+            Separador();
+            Entrega mascara = sistema.Entregas[posiciones[0]];
+            Console.WriteLine("La entrega mas cara es " + mascara.Codigo + " con un total de Q" + mascara.Total.ToString("0.00"));
+            Console.WriteLine("Cliente: " + mascara.Cliente.NombreCompleto + "   Paquete: " + mascara.Paquete.Tipo() + "   Servicio: " + mascara.Tiposervicio);
+            Pausa();
+        }
+
+        static void ReporteTodos()
+        {
+            ReporteEntregasActivas();
+            ReporteEntregasFinalizadas();
+            ReporteEntregasCanceladas();
+            ReporteEntregasConIncidencias();
+            ReporteRepartidoresDisponibles();
+            ReporteRepartidorConMasEntregas();
+            ReporteVehiculoMasUtilizado();
+            ReportePaquetesPorTipo();
+            ReporteTotalDeIngresos();
+            ReporteEntregaDeMayorCosto();
         }
 
         static void MostrarPortada()
