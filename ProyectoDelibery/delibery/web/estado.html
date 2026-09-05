@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>GoXela Delivery - Consultar estado</title>
+</head>
+<body>
+
+<h1>GoXela Delivery</h1>
+
+<hr>
+
+<h2>Consultar el estado de un pedido</h2>
+<p>Escriba el codigo de entrega que recibio al enviar su pedido
+   (por ejemplo: ENT005) y presione "Consultar".</p>
+
+<form action="/estado" method="get">
+<table border="1">
+<tr>
+  <td><label for="codigo">Codigo de entrega</label></td>
+  <td><input type="text" id="codigo" name="codigo" size="15" required></td>
+</tr>
+</table>
+<p><input type="submit" value="Consultar"></p>
+</form>
+
+<hr>
+
+<h2>Otras opciones</h2>
+<ul>
+  <li><a href="/">Solicitar una entrega nueva</a></li>
+</ul>
+
+<hr>
+<p>GoXela Delivery - Quetzaltenango, Guatemala</p>
+
+</body>
+</html>

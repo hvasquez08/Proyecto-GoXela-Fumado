@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>GoXela Delivery - Solicitar una entrega</title>
+</head>
+<body>
+
+<h1>GoXela Delivery</h1>
+<p>Servicio de entregas en Quetzaltenango y municipios cercanos.</p>
+
+<hr>
+
+<h2>Solicitar una entrega</h2>
+<p>Llene el formulario y presione el boton "Enviar pedido".
+   Su pedido aparecera al instante en el sistema de la empresa.</p>
+
+<form action="/pedido" method="post">
+
+<h3>1. Datos del cliente</h3>
+<table border="1">
+<tr>
+  <td><label for="nombre">Nombre completo</label></td>
+  <td><input type="text" id="nombre" name="nombre" size="40" required></td>
+</tr>
+<tr>
+  <td><label for="telefono">Telefono (8 digitos)</label></td>
+  <td><input type="text" id="telefono" name="telefono" size="15" required></td>
+</tr>
+<tr>
+  <td><label for="correo">Correo electronico</label></td>
+  <td><input type="text" id="correo" name="correo" size="40" required></td>
+</tr>
+</table>
+
+<h3>2. Direcciones</h3>
+<table border="1">
+<tr>
+  <td><label for="origen">Direccion de origen (donde se recoge)</label></td>
+  <td><input type="text" id="origen" name="origen" size="50" required></td>
+</tr>
+<tr>
+  <td><label for="destino">Direccion de destino (donde se entrega)</label></td>
+  <td><input type="text" id="destino" name="destino" size="50" required></td>
+</tr>
+<tr>
+  <td><label for="distancia">Distancia estimada en kilometros</label></td>
+  <td><input type="text" id="distancia" name="distancia" size="10" value="5" required></td>
+</tr>
+</table>
+
+<h3>3. Datos del paquete</h3>
+<table border="1">
+<tr>
+  <td><label for="descripcion">Descripcion del contenido</label></td>
+  <td><input type="text" id="descripcion" name="descripcion" size="50" required></td>
+</tr>
+<tr>
+  <td><label for="tipopaquete">Tipo de paquete</label></td>
+  <td>
+    <select id="tipopaquete" name="tipopaquete">
+      <option value="DOCUMENTO">Documento (maximo 2 kg)</option>
+      <option value="ESTANDAR" selected>Paquete estandar</option>
+      <option value="FRAGIL">Paquete fragil</option>
+      <option value="REFRIGERADO">Producto refrigerado</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><label for="peso">Peso en kilogramos</label></td>
+  <td><input type="text" id="peso" name="peso" size="10" value="1" required></td>
+</tr>
+<tr>
+  <td><label for="valor">Valor declarado en quetzales</label></td>
+  <td><input type="text" id="valor" name="valor" size="10" value="100" required></td>
+</tr>
+</table>
+
+<h3>4. Tipo de servicio</h3>
+<table border="1">
+<tr>
+  <td><label for="servicio">Servicio</label></td>
+  <td>
+    <select id="servicio" name="servicio">
+      <option value="NORMAL" selected>Normal (sin recargo)</option>
+      <option value="PRIORITARIO">Prioritario (25% mas)</option>
+      <option value="URGENTE">Urgente (60% mas)</option>
+    </select>
+  </td>
+</tr>
+</table>
+
+<p><input type="submit" value="Enviar pedido"></p>
+
+</form>
+
+<hr>
+
+<h2>Otras opciones</h2>
+<ul>
+  <li><a href="/estado">Consultar el estado de un pedido</a></li>
+</ul>
+
+<hr>
+<p>GoXela Delivery - Quetzaltenango, Guatemala</p>
+
+</body>
+</html>
