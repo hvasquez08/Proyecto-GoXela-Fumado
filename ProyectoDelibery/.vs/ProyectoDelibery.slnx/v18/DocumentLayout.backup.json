@@ -3,6 +3,9 @@
   "WorkspaceRootPath": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\copia de 2 programas\\programa simple.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|c:\\proyecto go xela 2026\\proyecto-goxela-fumado\\proyectodelibery\\delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|solutionrelative:delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -19,18 +22,31 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "programa simple.cs",
+              "DocumentMoniker": "C:\\copia de 2 programas\\programa simple.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\copia de 2 programas\\programa simple.cs",
+              "ToolTip": "C:\\copia de 2 programas\\programa simple.cs",
+              "RelativeToolTip": "..\\..\\..\\copia de 2 programas\\programa simple.cs",
+              "ViewState": "AgIAABsSAAAAAAAAAAAcwDISAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-05T06:28:19.663Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
               "RelativeDocumentMoniker": "delibery\\Program.cs",
               "ToolTip": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
               "RelativeToolTip": "delibery\\Program.cs",
 <<<<<<< HEAD
-              "ViewState": "AgIAANsPAAAAAAAAAAAiwN4PAABqAAAAAAAAAA==",
+              "ViewState": "AgIAANYPAAAAAAAAAAAAAOwPAAABAAAAAAAAAA==",
 =======
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANAMAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAJ4QAAAAAAAAAAAqwL4OAAAgAAAAAAAAAA==",
 >>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-05T03:58:45.064Z",
+              "WhenOpened": "2026-09-05T05:23:59.113Z",
               "EditorCaption": ""
             }
           ]

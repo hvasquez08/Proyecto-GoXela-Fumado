@@ -1,13 +1,19 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\",
+  "WorkspaceRootPath": "C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\",
   "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|solutionrelative:delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\copia de 2 programas\\programa simple.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|c:\\proyecto go xela 2026\\proyecto-goxela-fumado\\proyectodelibery\\delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|solutionrelative:delibery\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|delibery||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{331E5C48-0EA6-40EA-B4D4-36D8BF74C93A}|delibery\\delibery.csproj|c:\\users\\herbe\\onedrive\\documents\\proyectodelevery\\proyecto-goxela-fumado\\proyectodelibery\\delibery\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|a54ad834-9219-4aa6-b589-607af21c3e26"
     }
   ],
   "DocumentGroupContainers": [
@@ -17,36 +23,54 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "programa simple.cs",
-              "DocumentMoniker": "C:\\copia de 2 programas\\programa simple.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\copia de 2 programas\\programa simple.cs",
-              "ToolTip": "C:\\copia de 2 programas\\programa simple.cs",
-              "RelativeToolTip": "..\\..\\..\\copia de 2 programas\\programa simple.cs",
-              "ViewState": "AgIAABsSAAAAAAAAAAAcwDISAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-05T06:28:19.663Z",
+              "DocumentIndex": 2,
+              "Title": "delibery",
+              "DocumentMoniker": "C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\delibery.csproj",
+              "RelativeDocumentMoniker": "delibery\\delibery.csproj",
+              "ToolTip": "C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\delibery.csproj",
+              "RelativeToolTip": "delibery\\delibery.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-09-05T19:23:49.224Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
-              "RelativeDocumentMoniker": "delibery\\Program.cs",
-              "ToolTip": "C:\\PROYECTO GO XELA 2026\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
-              "RelativeToolTip": "delibery\\Program.cs",
-<<<<<<< HEAD
-              "ViewState": "AgIAANYPAAAAAAAAAAAAAOwPAAABAAAAAAAAAA==",
-=======
-              "ViewState": "AgIAAJ4QAAAAAAAAAAAqwL4OAAAgAAAAAAAAAA==",
->>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7
+              "Title": "programa simple.cs",
+              "DocumentMoniker": "C:\\copia de 2 programas\\programa simple.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\copia de 2 programas\\programa simple.cs",
+              "ToolTip": "C:\\copia de 2 programas\\programa simple.cs",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\copia de 2 programas\\programa simple.cs",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-05T05:23:59.113Z",
+              "WhenOpened": "2026-09-05T19:11:31.627Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
+              "RelativeDocumentMoniker": "delibery\\Program.cs",
+              "ToolTip": "C:\\Users\\Herbe\\OneDrive\\Documents\\ProyectoDelevery\\Proyecto-GoXela-Fumado\\ProyectoDelibery\\delibery\\Program.cs",
+              "RelativeToolTip": "delibery\\Program.cs",
+              "ViewState": "AgIAADwHAAAAAAAAAAAhwEoHAABuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-05T19:11:32.123Z",
               "EditorCaption": ""
             }
           ]

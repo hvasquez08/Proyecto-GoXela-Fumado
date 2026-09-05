@@ -1612,6 +1612,11 @@ namespace delibery
                     return false;
                 }
 
+                if (vehiculo.PuedeTransportar(Paquete) == false)
+                {
+                    return false;
+                }
+
                 Repartidor = repartidor;
                 Vehiculo = vehiculo;
                 repartidor.Estado = "ASIGNADO";
@@ -1780,6 +1785,119 @@ namespace delibery
             }
 
         }
+        static class Recursivos
+        {
+            public static Entrega BuscarEntregaPorCodigo(List<Entrega> lista, int indice, string codigo)
+            {
+                if (indice >= lista.Count)
+                {
+                    return null;
+                }
+
+                if (lista[indice].Codigo == codigo)
+                {
+                    return lista[indice];
+                }
+
+                return BuscarEntregaPorCodigo(lista, indice + 1, codigo);
+            }
+
+            public static int ContarEntregasPorEstado(List<Entrega> lista, int indice, string estado)
+            {
+                if (indice >= lista.Count)
+                {
+                    return 0;
+                }
+
+                int estacuenta = 0;
+
+                if (lista[indice].Estado == estado)
+                {
+                    estacuenta = 1;
+                }
+
+                return estacuenta + ContarEntregasPorEstado(lista, indice + 1, estado);
+            }
+
+            public static int ContarPaquetesPorTipo(List<Paquete> lista, int indice, string tipo)
+            {
+                if (indice >= lista.Count)
+                {
+                    return 0;
+                }
+
+                int estecuenta = 0;
+
+                if (lista[indice].Tipo() == tipo)
+                {
+                    estecuenta = 1;
+                }
+
+                return estecuenta + ContarPaquetesPorTipo(lista, indice + 1, tipo);
+            }
+
+            public static double SumarIngresos(List<Entrega> lista, int indice)
+            {
+                if (indice >= lista.Count)
+                {
+                    return 0;
+                }
+
+                double estemonto = 0;
+
+                if (lista[indice].Estado == "ENTREGADA")
+                {
+                    estemonto = lista[indice].Total;
+                }
+
+                return estemonto + SumarIngresos(lista, indice + 1);
+            }
+        }
+
+        static class Punteros
+        {
+            public static unsafe void AplicarRecargoConPuntero(double* direcciondelmonto, double porcentaje)
+            {
+                *direcciondelmonto = *direcciondelmonto + (*direcciondelmonto * porcentaje / 100.0);
+            }
+
+            public static unsafe void Demostracion()
+            {
+                Console.WriteLine();
+                Console.WriteLine("========================================================================");
+                Console.WriteLine("  DEMOSTRACION DEL USO DE PUNTEROS");
+                Console.WriteLine("========================================================================");
+                Console.WriteLine();
+
+                Console.WriteLine("1) Un puntero apuntando a un monto de dinero");
+                double monto = 250.00;
+                double* punteroalmonto = &monto;
+
+                Console.WriteLine("   Valor de la variable monto : Q" + monto.ToString("0.00"));
+                Console.WriteLine("   Direccion de memoria       : 0x" + ((long)punteroalmonto).ToString("X"));
+                Console.WriteLine("   Valor leido con *puntero   : Q" + (*punteroalmonto).ToString("0.00"));
+                Console.WriteLine();
+
+                Console.WriteLine("   Ahora se le aplica un recargo del 2% pasando SOLO la direccion:");
+                AplicarRecargoConPuntero(punteroalmonto, 2.0);
+                Console.WriteLine("   Valor de la variable monto : Q" + monto.ToString("0.00"));
+                Console.WriteLine("   (la variable cambio aunque el metodo no devolvio nada)");
+                Console.WriteLine();
+
+                Console.WriteLine("2) Recorrer un arreglo moviendo el puntero");
+                int[] pesos = { 3, 12, 7, 25, 1 };
+
+                fixed (int* inicio = pesos)
+                {
+                    for (int i = 0; i < pesos.Length; i++)
+                    {
+                        Console.WriteLine("   posicion " + i + " -> direccion 0x" + ((long)(inicio + i)).ToString("X") +
+                                          "  valor " + *(inicio + i) + " kg");
+                    }
+                }
+            }
+        }
+
         struct ResumenReporte
         {
             public int TotalEntregas;
@@ -1958,14 +2076,7 @@ namespace delibery
 
             public Entrega BuscarEntrega(string codigo)
             {
-                for (int i = 0; i < Entregas.Count; i++)
-                {
-                    if (Entregas[i].Codigo == codigo)
-                    {
-                        return Entregas[i];
-                    }
-                }
-                return null;
+                return Recursivos.BuscarEntregaPorCodigo(Entregas, 0, codigo);
             }
 
             public Incidencia BuscarIncidencia(string codigo)
@@ -2361,33 +2472,90 @@ namespace delibery
                 return true;
             }
 
+            public void CargarDatosDePrueba()
+            {
+                Cliente c1 = new Cliente(SiguienteCodigoCliente(), "Ana Lucia Lopez", "55112233",
+                                         "ana.lopez@correo.com", "5a calle 3-45 zona 1, Quetzaltenango", 1);
+                AgregarCliente(c1);
+
+                Cliente c2 = new Cliente(SiguienteCodigoCliente(), "Carlos Enrique Perez", "44223344",
+                                         "carlos.perez@correo.com", "12 avenida 8-20 zona 3, Quetzaltenango", 6);
+                AgregarCliente(c2);
+
+                Cliente c3 = new Cliente(SiguienteCodigoCliente(), "Maria Jose Gomez", "33556677",
+                                         "maria.gomez@correo.com", "4a calle 15-10 zona 2, Salcaja", 1);
+                AgregarCliente(c3);
+
+                Repartidor r1 = new Repartidor(SiguienteCodigoRepartidor(), "Juan Carlos Ramirez", "55667788", "M-2024-0011", "M");
+                AgregarRepartidor(r1);
+
+                Repartidor r2 = new Repartidor(SiguienteCodigoRepartidor(), "Luis Fernando Morales", "44556677", "B-2023-0450", "B");
+                AgregarRepartidor(r2);
+
+                Repartidor r3 = new Repartidor(SiguienteCodigoRepartidor(), "Sofia Elena Diaz", "33445566", "", "NINGUNA");
+                AgregarRepartidor(r3);
+
+                bicicleta v1 = new bicicleta(SiguienteCodigoVehiculo(), "SIN PLACA", "Monark", "Urbana 2023", 10, 0.50, "NINGUNA");
+                AgregarVehiculo(v1);
+
+                Motocicleta v2 = new Motocicleta(SiguienteCodigoVehiculo(), "P-123ABC", "Honda", "CB125 2022", 40, 2.00, "M");
+                v2.Tienecajatermica = true;
+                AgregarVehiculo(v2);
+
+                automovil v3 = new automovil(SiguienteCodigoVehiculo(), "P-456DEF", "Toyota", "Yaris 2020", 400, 4.50, "A o B");
+                v3.Numerodepuertas = 4;
+                AgregarVehiculo(v3);
+
+                Motocicleta v4 = new Motocicleta(SiguienteCodigoVehiculo(), "P-789GHI", "Yamaha", "YBR125 2021", 35, 2.00, "M");
+                v4.Tienecajatermica = false;
+                v4.Estado = "EN MANTENIMIENTO";
+                AgregarVehiculo(v4);
+
+                Documento p1 = new Documento(SiguienteCodigoPaquete(), "Contrato de arrendamiento", 0.3, 50,
+                                             "5a calle 3-45 zona 1, Quetzaltenango", "Municipalidad de Quetzaltenango");
+                AgregarPaquete(p1);
+
+                PaqueteEstandar p2 = new PaqueteEstandar(SiguienteCodigoPaquete(), "Caja con ropa de temporada", 12, 800,
+                                                         "12 avenida 8-20 zona 3, Quetzaltenango", "Centro comercial Pradera, Xela");
+                AgregarPaquete(p2);
+
+                PaqueteFragil p3 = new PaqueteFragil(SiguienteCodigoPaquete(), "Juego de vasos de vidrio", 3, 450,
+                                                     "4a calle 15-10 zona 2, Salcaja", "7a avenida 2-30 zona 1, Quetzaltenango");
+                AgregarPaquete(p3);
+
+                ProductoRefrigerado p4 = new ProductoRefrigerado(SiguienteCodigoPaquete(), "Insulina refrigerada", 2, 1200,
+                                                                 "Farmacia Batres zona 1, Quetzaltenango", "Hospital Regional de Occidente", 8);
+                AgregarPaquete(p4);
+
+                Entrega e1 = CrearEntrega(c1.Codigo, p1.Codigo, 4, "NORMAL");
+                CalcularTarifa(e1.Codigo);
+                AsignarRepartidorYVehiculo(e1.Codigo, r3.Codigo, v1.MyCodigo);
+                CambiarEstadoEntrega(e1.Codigo, "RECOGIDA");
+                CambiarEstadoEntrega(e1.Codigo, "EN RUTA");
+                CambiarEstadoEntrega(e1.Codigo, "ENTREGADA");
+                CalificarEntrega(e1.Codigo, 5);
+
+                Entrega e2 = CrearEntrega(c2.Codigo, p2.Codigo, 8, "PRIORITARIO");
+                CalcularTarifa(e2.Codigo);
+                AsignarRepartidorYVehiculo(e2.Codigo, r2.Codigo, v3.MyCodigo);
+                CambiarEstadoEntrega(e2.Codigo, "RECOGIDA");
+                CambiarEstadoEntrega(e2.Codigo, "EN RUTA");
+                RegistrarIncidencia(e2.Codigo, "RETRASO", "Trafico pesado en la zona 3 por reparacion de calle.",
+                                    "Se aviso al cliente que llegara 30 minutos tarde.");
+                CambiarEstadoEntrega(e2.Codigo, "EN RUTA");
+
+                Entrega e3 = CrearEntrega(c3.Codigo, p3.Codigo, 3, "URGENTE");
+                CalcularTarifa(e3.Codigo);
+            }
+
             public ResumenReporte ObtenerResumen()
             {
                 ResumenReporte resumen = new ResumenReporte();
                 resumen.TotalEntregas = Entregas.Count;
-                resumen.EntregasActivas = 0;
-                resumen.EntregasFinalizadas = 0;
-                resumen.EntregasCanceladas = 0;
-                resumen.TotalIngresos = 0;
-
-                for (int i = 0; i < Entregas.Count; i++)
-                {
-                    Entrega entrega = Entregas[i];
-
-                    if (entrega.Estado == "ENTREGADA")
-                    {
-                        resumen.EntregasFinalizadas = resumen.EntregasFinalizadas + 1;
-                        resumen.TotalIngresos = resumen.TotalIngresos + entrega.Total;
-                    }
-                    else if (entrega.Estado == "CANCELADA")
-                    {
-                        resumen.EntregasCanceladas = resumen.EntregasCanceladas + 1;
-                    }
-                    else
-                    {
-                        resumen.EntregasActivas = resumen.EntregasActivas + 1;
-                    }
-                }
+                resumen.EntregasFinalizadas = Recursivos.ContarEntregasPorEstado(Entregas, 0, "ENTREGADA");
+                resumen.EntregasCanceladas = Recursivos.ContarEntregasPorEstado(Entregas, 0, "CANCELADA");
+                resumen.EntregasActivas = resumen.TotalEntregas - resumen.EntregasFinalizadas - resumen.EntregasCanceladas;
+                resumen.TotalIngresos = Math.Round(Recursivos.SumarIngresos(Entregas, 0), 2);
 
                 return resumen;
             }
@@ -2593,7 +2761,8 @@ namespace delibery
                 Console.WriteLine(" 5. Gestion de entregas");
                 Console.WriteLine(" 6. Gestion de incidencias");
                 Console.WriteLine(" 7. Reportes");
-                Console.WriteLine(" 8. Salir");
+                Console.WriteLine(" 8. Demostracion del uso de punteros");
+                Console.WriteLine(" 9. Salir");
                 Console.WriteLine("========================================");
 
                 opcion = LeerTexto("Seleccione una opcion: ");
@@ -2631,6 +2800,11 @@ namespace delibery
                             break;
 
                         case "8":
+                            Punteros.Demostracion();
+                            Pausa();
+                            break;
+
+                        case "9":
                             Console.WriteLine();
                             Console.WriteLine("Gracias por usar GoXela Delivery.");
                             break;
@@ -2651,7 +2825,7 @@ namespace delibery
                     Pausa();
                 }
 
-            } while (opcion != "8");
+            } while (opcion != "9");
         }
 
         static void MenuClientes()
@@ -4223,7 +4397,6 @@ namespace delibery
                             ReporteEntregasActivas();
                             break;
 
-<<<<<<< HEAD
                         case "2":
                             ReporteEntregasFinalizadas();
                             break;
@@ -4243,47 +4416,6 @@ namespace delibery
                         case "6":
                             ReporteRepartidorConMasEntregas();
                             break;
-=======
-                    case "2":
-                        ReporteEntregasFinalizadas();
-                        break;
-
-                    case "3":
-                        ReporteEntregasCanceladas();
-                        break;
-
-                    case "4":
-                        ReporteEntregasConIncidencias();
-                        break;
-
-                    case "5":
-                        ReporteRepartidoresDisponibles();
-                        break;
-
-                    case "6":
-                        ReporteRepartidorConMasEntregas();
-                        break;
-
-                    case "7":
-                        ReporteVehiculoMasUtilizado();
-                        break;
-
-                    case "8":
-                        ReportePaquetesPorTipo();
-                        break;
-
-                    case "9":
-                        ReporteTotalDeIngresos();
-                        break;
-
-                    case "10":
-                        ReporteEntregaDeMayorCosto();
-                        break;
-
-                    case "11":
-                        ReporteTodos();
-                        break;
->>>>>>> 6065e5983b14dc1fd9132a5e7b107b1d0613a0d7
 
                         case "7":
                             ReporteVehiculoMasUtilizado();
@@ -4375,7 +4507,8 @@ namespace delibery
             }
 
             Separador();
-            Console.WriteLine("Total de entregas finalizadas: " + cuantas);
+            cuantas = Recursivos.ContarEntregasPorEstado(sistema.Entregas, 0, "ENTREGADA");
+            Console.WriteLine("Total de entregas finalizadas: " + cuantas + "   (contadas con la funcion recursiva)");
             Pausa();
         }
 
@@ -4395,7 +4528,8 @@ namespace delibery
             }
 
             Separador();
-            Console.WriteLine("Total de entregas canceladas: " + cuantas);
+            cuantas = Recursivos.ContarEntregasPorEstado(sistema.Entregas, 0, "CANCELADA");
+            Console.WriteLine("Total de entregas canceladas: " + cuantas + "   (contadas con la funcion recursiva)");
             Pausa();
         }
 
@@ -4564,16 +4698,7 @@ namespace delibery
 
             for (int i = 0; i < tipos.Length; i++)
             {
-                int cuantos = 0;
-
-                for (int j = 0; j < sistema.Paquetes.Count; j++)
-                {
-                    if (sistema.Paquetes[j].Tipo() == tipos[i])
-                    {
-                        cuantos = cuantos + 1;
-                    }
-                }
-
+                int cuantos = Recursivos.ContarPaquetesPorTipo(sistema.Paquetes, 0, tipos[i]);
                 Console.WriteLine(tipos[i].PadRight(17) + cuantos.ToString().PadLeft(8));
             }
 
@@ -4584,6 +4709,7 @@ namespace delibery
 
             Separador();
             Console.WriteLine("Total de paquetes registrados: " + sistema.Paquetes.Count + "   Peso total: " + pesototal + " kg");
+            Console.WriteLine("(cada tipo se conto con la funcion recursiva ContarPaquetesPorTipo)");
             Pausa();
         }
 
@@ -4598,6 +4724,7 @@ namespace delibery
             Console.WriteLine("  - canceladas       : " + resumen.EntregasCanceladas);
             Separador();
             Console.WriteLine("INGRESOS COBRADOS (solo entregas ENTREGADAS): Q" + resumen.TotalIngresos.ToString("0.00"));
+            Console.WriteLine("(la suma se hizo con la funcion recursiva SumarIngresos)");
 
             double porcobrar = 0;
 
@@ -4695,6 +4822,10 @@ namespace delibery
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             MostrarPortada();
+            sistema.CargarDatosDePrueba();
+            Console.WriteLine("Se cargaron los datos de prueba: " + sistema.Clientes.Count + " clientes, " +
+                              sistema.Repartidores.Count + " repartidores, " + sistema.Vehiculos.Count + " vehiculos, " +
+                              sistema.Paquetes.Count + " paquetes y " + sistema.Entregas.Count + " entregas.");
             MenuPrincipal();
         }
     }
